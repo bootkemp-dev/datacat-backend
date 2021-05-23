@@ -51,7 +51,7 @@ Payload:
 Response: 
 ```
 if data validation fails: HTTP 400
-if user does not exist: HTTP 406
+if user does not exist: HTTP 404
 if server fails: HTTP 500
 if everything ok: HTTP 200
 ```

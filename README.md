@@ -62,6 +62,10 @@ Returns information about currently logged user.
 ```
 Method: GET <br/>
 Protected: YES - login required <br/>
+Endpoint:
+```
+/api/v1/auth/me
+```
 Payload: None
 Response:
 ```

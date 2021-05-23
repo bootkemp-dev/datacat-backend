@@ -66,6 +66,7 @@ Payload: None
 Response:
 ```
 if server fails: HTTP 500
+if not authenticated: HTTP 401
 if everything ok HTTP 200 and payload with data:
 {
     "id": 1,

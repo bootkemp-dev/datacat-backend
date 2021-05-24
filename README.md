@@ -79,3 +79,20 @@ if everything ok HTTP 200 and payload with data:
     "last-login": "01.01.1990"
 }
 ```
+
+### Logout
+```
+Logs user out, deletes the cookie
+```
+Method: POST <br/>
+Protected: YES - login required <br/>
+Endpoint:
+```
+/api/v1/auth/logout
+```
+Payload: None
+Response:
+```
+if server fails: HTTP 500
+if not authenticated: HTTP 401
+if everything OK: HTTP 200

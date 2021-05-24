@@ -1,7 +1,7 @@
 
 create table users (
     id serial primary key not null,
-    username varchar(100) not null,
+    username varchar(50) not null,
     email varchar(100) not null,
     passwordHash text not null,
     created timestamp not null,

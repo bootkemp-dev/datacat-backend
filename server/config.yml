@@ -2,4 +2,8 @@ server:
   host: 127.0.0.1
   port: 8888
 database:
-  
+  user: datacatdbuser
+  password: datacatdbpassword
+  host: 127.0.0.1
+  port: 5431
+  name: datacatdb

@@ -13,7 +13,7 @@ var db *sql.DB
 
 func init() {
 
-	c, err := config.NewConfig(".")
+	c, err := config.NewConfig("./config.yml")
 	if err != nil {
 		log.Fatal(err)
 	}

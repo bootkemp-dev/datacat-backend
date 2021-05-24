@@ -1,0 +1,25 @@
+version: '3.7'
+services:
+    database:
+        image: postgres
+        environment:
+            POSTGRES_DB: datacatdb
+            POSTGRES_USER: datacatdbuser
+            POSTGRES_PASSWORD: datacatdbpassword
+        networks:
+            - default
+        volumes:
+            - data:/var/lib/postgresql/data
+            - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    server:
+        build:
+            context: ./server
+            dockerfile: Dockerfile
+        ports: 
+            - "8888:8888"
+        networks: 
+            - default
+        depends_on: 
+            - database
+volumes: 
+    data:

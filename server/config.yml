@@ -7,3 +7,6 @@ database:
   host: database
   port: 5432
   name: datacatdb
+jwt: 
+  jwtKey: testjwtkey
+  issuer: datacat

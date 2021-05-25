@@ -4,6 +4,6 @@ server:
 database:
   user: datacatdbuser
   password: datacatdbpassword
-  host: 127.0.0.1
-  port: 5431
+  host: database
+  port: 5432
   name: datacatdb

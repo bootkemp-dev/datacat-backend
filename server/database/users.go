@@ -1,8 +1,6 @@
 package database
 
 import (
-	"database/sql"
-	"fmt"
 	"log"
 	"time"
 )
@@ -10,27 +8,21 @@ import (
 func CheckIfUsernameExists(username string) error {
 	err := db.QueryRow(`select username from users where username=$1`, username).Scan(&username)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil
-		}
 		log.Println(err)
 		return err
 	}
 
-	return fmt.Errorf("username exists")
+	return nil
 }
 
 func CheckIfEmailExists(email string) error {
 	err := db.QueryRow(`select email from users where email=$1`, email).Scan(&email)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			return nil
-		}
 		log.Println(err)
 		return err
 	}
 
-	return fmt.Errorf("email exists")
+	return nil
 }
 
 func InsertUser(username, email, password string) error {
@@ -45,4 +37,15 @@ func InsertUser(username, email, password string) error {
 	}
 
 	return nil
+}
+
+func GetIDAndPasswordHash(username string) (string, error) {
+	var password string
+
+	err := db.QueryRow(`select passwordHash from users where username=$1`, username).Scan(&password)
+	if err != nil {
+		return "", err
+	}
+
+	return password, nil
 }

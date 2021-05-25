@@ -1,8 +1,10 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
 
+	"github.com/bootkemp-dev/datacat-backend/auth"
 	"github.com/bootkemp-dev/datacat-backend/database"
 	"github.com/bootkemp-dev/datacat-backend/models"
 	"github.com/bootkemp-dev/datacat-backend/utils"
@@ -33,8 +35,8 @@ func Register(c *gin.Context) {
 
 	//check if username and email are already in the database
 	err = database.CheckIfUsernameExists(request.Username)
-	if err != nil {
-		if err.Error() == "username exists" {
+	if err != sql.ErrNoRows {
+		if err == nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
 				"message": err.Error(),
@@ -50,8 +52,8 @@ func Register(c *gin.Context) {
 	}
 
 	err = database.CheckIfEmailExists(request.Email)
-	if err != nil {
-		if err.Error() == "email exists" {
+	if err != sql.ErrNoRows {
+		if err == nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
 				"message": err.Error(),
@@ -91,7 +93,73 @@ func Register(c *gin.Context) {
 }
 
 func Login(c *gin.Context) {
+	var request models.LoginRequest
 
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	//check if the username is in the database
+	err := database.CheckIfUsernameExists(request.Username)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	//get id and password
+	passwordHash, err := database.GetIDAndPasswordHash(request.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	//compare password and hash
+	err = utils.CompareHashAndPassword(passwordHash, request.Password)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	//generate token
+	token, exp, err := auth.GenerateToken(request.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		MaxAge:   int(exp),
+		Path:     "/",
+		Secure:   false,
+		HttpOnly: true,
+	})
+	c.Status(200)
+	return
 }
 
 func Me(c *gin.Context) {

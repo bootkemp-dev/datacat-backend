@@ -47,7 +47,7 @@ func GenerateToken(username string) (string, int64, error) {
 	return tokenString, expirationTime, nil
 }
 
-func IsTokenValid(tokenString string) (string, error) {
+func isTokenValid(tokenString string) (string, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); ok == false {
 			return nil, fmt.Errorf("Token signing method is not valid: %v", token.Header["alg"])

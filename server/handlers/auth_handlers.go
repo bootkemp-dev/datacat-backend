@@ -163,7 +163,18 @@ func Login(c *gin.Context) {
 }
 
 func Me(c *gin.Context) {
+	username, exists := c.Get("username")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "username not set in context",
+		})
+		return
+	}
 
+	c.JSON(http.StatusOK, gin.H{
+		"username": username,
+	})
+	return
 }
 
 func Logout(c *gin.Context) {

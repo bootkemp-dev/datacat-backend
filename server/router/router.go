@@ -3,19 +3,25 @@ package router
 import (
 	"fmt"
 
+	"github.com/bootkemp-dev/datacat-backend/auth"
 	"github.com/bootkemp-dev/datacat-backend/handlers"
 	"github.com/gin-gonic/gin"
 )
 
 func setupRouter() *gin.Engine {
 	r := gin.Default()
-	auth := r.Group("auth")
+	authRouter := r.Group("auth")
 	{
-		auth.POST("/register", handlers.Register)
-		auth.POST("/login", handlers.Login)
-		auth.GET("/me", handlers.Me)
-		auth.POST("/logout", handlers.Logout)
+		authRouter.POST("/register", handlers.Register)
+		authRouter.POST("/login", handlers.Login)
 	}
+	auth2 := r.Group("auth2")
+	{
+		auth2.Use(auth.AuthMiddleware())
+		auth2.GET("/me", handlers.Me)
+		auth2.POST("/logout", handlers.Logout)
+	}
+
 	return r
 }
 

@@ -25,13 +25,13 @@ func init() {
 	c = *config
 }
 
-func GenerateToken(username string) (string, int64, error) {
+func GenerateToken(username string) (string, *time.Time, error) {
 
-	expirationTime := time.Now().Add(15 * time.Minute).Unix()
+	expirationTime := time.Now().Add(15 * time.Minute)
 	claims := &Claims{
 		Username: username,
 		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime,
+			ExpiresAt: expirationTime.Unix(),
 			IssuedAt:  time.Now().Unix(),
 			Issuer:    c.Jwt.Issuer,
 		},
@@ -41,10 +41,10 @@ func GenerateToken(username string) (string, int64, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(c.Jwt.JwtKey))
 	if err != nil {
-		return "", 0, err
+		return "", nil, err
 	}
 
-	return tokenString, expirationTime, nil
+	return tokenString, &expirationTime, nil
 }
 
 func isTokenValid(tokenString string) (string, error) {

@@ -153,9 +153,9 @@ func Login(c *gin.Context) {
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "token",
 		Value:    token,
-		MaxAge:   int(exp),
-		Path:     "/",
-		Secure:   false,
+		Expires:  *exp,
+		Path:     "/protected",
+		Secure:   true,
 		HttpOnly: true,
 	})
 	c.Status(200)
@@ -178,7 +178,31 @@ func Me(c *gin.Context) {
 }
 
 func Refresh(c *gin.Context) {
+	username, exists := c.Get("username")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "username not set in context",
+		})
+		return
+	}
 
+	token, exp, err := auth.GenerateToken(username.(string))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Expires:  *exp,
+		Value:    token,
+		Path:     "/protected",
+		Secure:   true,
+		HttpOnly: true,
+	})
 }
 
 func Logout(c *gin.Context) {

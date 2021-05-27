@@ -64,7 +64,7 @@ Method: GET <br/>
 Protected: YES - login required <br/>
 Endpoint:
 ```
-/api/v1/auth/me
+/api/v1/protected/me
 ```
 Payload: None
 Response:
@@ -73,10 +73,7 @@ if server fails: HTTP 500
 if not authenticated: HTTP 401
 if everything ok HTTP 200 and payload with data:
 {
-    "id": 1,
     "username": "test-username",
-    "email": "test@email.com",
-    "last-login": "01.01.1990"
 }
 ```
 
@@ -88,7 +85,7 @@ Method: POST <br/>
 Protected: YES - login required <br/>
 Endpoint:
 ```
-/api/v1/auth/logout
+/api/v1/protected/logout
 ```
 Payload: None
 Response:
@@ -96,3 +93,22 @@ Response:
 if server fails: HTTP 500
 if not authenticated: HTTP 401
 if everything OK: HTTP 200
+```
+
+### Refresh
+```
+Refreshed the token, sets new cookie
+```
+Method: POST <br/>
+Protected: YES - login required <br/>
+Endpoint:
+```
+/api/v1/protected/refresh
+```
+Payload: None
+Response:
+```
+if server fails: HTTP 500
+if not authenticated: HTTP 401
+if everything OK: HTTP 200
+```

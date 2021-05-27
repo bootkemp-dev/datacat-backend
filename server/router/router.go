@@ -19,7 +19,9 @@ func setupRouter() *gin.Engine {
 	{
 		auth2.Use(auth.AuthMiddleware())
 		auth2.GET("/me", handlers.Me)
+		auth2.POST("/refresh", handlers.Refresh)
 		auth2.POST("/logout", handlers.Logout)
+
 	}
 
 	return r

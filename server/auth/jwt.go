@@ -27,7 +27,7 @@ func init() {
 
 func GenerateToken(username string) (string, int64, error) {
 
-	expirationTime := time.Now().Add(1 * time.Hour).Unix()
+	expirationTime := time.Now().Add(15 * time.Minute).Unix()
 	claims := &Claims{
 		Username: username,
 		StandardClaims: jwt.StandardClaims{

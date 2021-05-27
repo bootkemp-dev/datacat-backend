@@ -177,6 +177,10 @@ func Me(c *gin.Context) {
 	return
 }
 
+func Refresh(c *gin.Context) {
+
+}
+
 func Logout(c *gin.Context) {
 
 }

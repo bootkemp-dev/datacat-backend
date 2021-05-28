@@ -23,9 +23,9 @@ func setupRouter() *gin.Engine {
 		auth2.POST("/logout", handlers.Logout)
 
 		//background jobs
-		auth2.POST("/monitoring", handlers.AddJob)
-		auth2.GET("/monitoring", handlers.GetAllJobs)
-		auth2.DELETE("/monitoring/:id", handlers.DeleteJob)
+		auth2.POST("/jobs", handlers.AddJob)
+		auth2.GET("/jobs", handlers.GetAllJobs)
+		auth2.DELETE("/jobs/:id", handlers.DeleteJob)
 	}
 
 	return r

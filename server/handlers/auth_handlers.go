@@ -141,7 +141,7 @@ func Login(c *gin.Context) {
 	}
 
 	//generate token
-	token, exp, err := auth.GenerateToken(request.Username, id)
+	token, exp, err := auth.GenerateToken(request.Username, float64(id))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -154,8 +154,8 @@ func Login(c *gin.Context) {
 		Name:     "token",
 		Value:    token,
 		Expires:  *exp,
-		Path:     "/protected",
-		Secure:   true,
+		Path:     "/",
+		Secure:   false,
 		HttpOnly: true,
 	})
 	c.Status(200)
@@ -171,7 +171,16 @@ func Me(c *gin.Context) {
 		return
 	}
 
+	id, exists := c.Get("id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "id not set in context",
+		})
+		return
+	}
+
 	c.JSON(http.StatusOK, gin.H{
+		"id":       id,
 		"username": username,
 	})
 	return
@@ -194,7 +203,7 @@ func Refresh(c *gin.Context) {
 		return
 	}
 
-	token, exp, err := auth.GenerateToken(username.(string), id.(int))
+	token, exp, err := auth.GenerateToken(username.(string), id.(float64))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -207,8 +216,8 @@ func Refresh(c *gin.Context) {
 		Name:     "token",
 		Expires:  *exp,
 		Value:    token,
-		Path:     "/protected",
-		Secure:   true,
+		Path:     "/",
+		Secure:   false,
 		HttpOnly: true,
 	})
 }

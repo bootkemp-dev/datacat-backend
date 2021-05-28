@@ -15,13 +15,17 @@ func setupRouter() *gin.Engine {
 		authRouter.POST("/register", handlers.Register)
 		authRouter.POST("/login", handlers.Login)
 	}
-	auth2 := r.Group("auth2")
+	auth2 := r.Group("protected")
 	{
 		auth2.Use(auth.AuthMiddleware())
 		auth2.GET("/me", handlers.Me)
 		auth2.POST("/refresh", handlers.Refresh)
 		auth2.POST("/logout", handlers.Logout)
 
+		//background jobs
+		auth2.POST("/monitoring", handlers.AddJob)
+		auth2.GET("/monitoring", handlers.GetAllJobs)
+		auth2.DELETE("/monitoring/:id", handlers.DeleteJob)
 	}
 
 	return r

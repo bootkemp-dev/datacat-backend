@@ -39,13 +39,14 @@ func InsertUser(username, email, password string) error {
 	return nil
 }
 
-func GetIDAndPasswordHash(username string) (string, error) {
+func GetIDAndPasswordHash(username string) (string, int, error) {
+	var id int
 	var password string
 
-	err := db.QueryRow(`select passwordHash from users where username=$1`, username).Scan(&password)
+	err := db.QueryRow(`select id, passwordHash from users where username=$1`, username).Scan(&id, &password)
 	if err != nil {
-		return "", err
+		return "", 0, err
 	}
 
-	return password, nil
+	return password, id, nil
 }

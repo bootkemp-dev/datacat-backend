@@ -18,7 +18,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		}
 
 		tokenString := cookie.Value
-		username, err := isTokenValid(tokenString)
+		username, id, err := isTokenValid(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
 				"message": "Not Authorized",
@@ -26,6 +26,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		} else {
+			c.Set("id", id)
 			c.Set("username", username)
 			c.Next()
 		}

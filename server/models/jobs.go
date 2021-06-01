@@ -7,9 +7,8 @@ type Job struct {
 	Frequency int    `json:"frequency"`
 	UserID    int    `json:"user_id"`
 }
-
 type NewJobRequest struct {
 	JobName   string `json:"name"`
 	JobURL    string `json:"url"`
-	Frequency int    `json:"frequency"`
+	Frequency uint   `json:"frequency"`
 }

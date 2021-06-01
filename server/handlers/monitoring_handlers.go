@@ -44,6 +44,8 @@ func AddJob(c *gin.Context) {
 		return
 	}
 
+	//TODO: Insert job into the job pool
+
 	c.JSON(http.StatusOK, gin.H{
 		"id":   jobID,
 		"name": request.JobName,

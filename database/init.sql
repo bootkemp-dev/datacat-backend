@@ -13,7 +13,9 @@ create table jobs (
     jobName varchar(50) not null,
     jobUrl text not null,
     frequency integer not null,
-    userid integer not null references users(id)
+    userid integer not null references users(id),
+    created timestamp not null,
+    modified timestamp not null
 );
 
 create table jobLog(

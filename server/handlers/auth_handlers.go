@@ -39,7 +39,7 @@ func Register(c *gin.Context) {
 		if err == nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
-				"message": err.Error(),
+				"message": "Username already exists in the database",
 			})
 			return
 		}
@@ -56,7 +56,7 @@ func Register(c *gin.Context) {
 		if err == nil {
 			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
-				"message": err.Error(),
+				"message": "Email already exists in the database",
 			})
 			return
 		}

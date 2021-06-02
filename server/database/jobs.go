@@ -3,6 +3,8 @@ package database
 import (
 	"log"
 	"time"
+
+	"github.com/bootkemp-dev/datacat-backend/models"
 )
 
 func InsertNewJob(name, url string, frequency int64, userid float64) (int, error) {
@@ -22,12 +24,6 @@ func InsertNewJob(name, url string, frequency int64, userid float64) (int, error
 	return id, nil
 }
 
-/*
-func GetAllJobs() {
-
-}
-*/
-
 func InsertNewJobLog(jobID int, down bool, timeChecked time.Time) error {
 	stmt, err := db.Prepare(`insert into jobLog(id, jobID, down, timeChecked) values(default, $1, $2, $3)`)
 	if err != nil {
@@ -42,4 +38,27 @@ func InsertNewJobLog(jobID int, down bool, timeChecked time.Time) error {
 	}
 
 	return nil
+}
+
+func GetAllJobs(userID float64) ([]*models.Job, error) {
+	rows, err := db.Query(`select * from jobs where userid=$1`, userID)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	var jobs []*models.Job
+
+	for rows.Next() {
+		var job models.Job
+		err := rows.Scan(&job.ID, &job.Name, &job.URL, &job.Frequency, &job.UserID, &job.Active, &job.CreatedAt, &job.ModifiedAt)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		jobs = append(jobs, &job)
+	}
+
+	return jobs, nil
 }

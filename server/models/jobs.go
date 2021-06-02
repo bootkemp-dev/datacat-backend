@@ -11,7 +11,9 @@ type Job struct {
 	Active     bool      `json:"active"`
 	CreatedAt  time.Time `json:"created_at"`
 	ModifiedAt time.Time `json:"modified_at"`
+	Status     string    `json:"status"`
 }
+
 type NewJobRequest struct {
 	JobName   string `json:"name"`
 	JobURL    string `json:"url"`

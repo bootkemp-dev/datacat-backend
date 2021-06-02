@@ -3,9 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/bootkemp-dev/datacat-backend/database"
 	"github.com/bootkemp-dev/datacat-backend/models"
-	"github.com/bootkemp-dev/datacat-backend/utils"
 	"github.com/gin-gonic/gin"
 )
 

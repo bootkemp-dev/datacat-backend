@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/bootkemp-dev/datacat-backend/database"
 )
 
 func NewPool() Pool {
@@ -63,8 +65,10 @@ func (j Job) Run() {
 				err := j.URLStatus()
 				if err != nil {
 					j.status = "DOWN"
-					log.Println(err)
-					//insert into jobLog
+					err = database.InsertNewJobLog(j.JobID, true, time.Now())
+					if err != nil {
+						log.Println(err)
+					}
 				}
 
 				time.Sleep(j.Frequency)

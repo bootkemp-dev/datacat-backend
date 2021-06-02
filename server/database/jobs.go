@@ -21,3 +21,25 @@ func InsertNewJob(name, url string, frequency int64, userid float64) (int, error
 
 	return id, nil
 }
+
+/*
+func GetAllJobs() {
+
+}
+*/
+
+func InsertNewJobLog(jobID int, down bool, timeChecked time.Time) error {
+	stmt, err := db.Prepare(`insert into jobLog(id, jobID, down, timeChecked) values(default, $1, $2, $3)`)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	_, err = stmt.Exec(jobID, down, timeChecked)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}

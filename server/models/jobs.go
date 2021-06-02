@@ -13,5 +13,5 @@ type Job struct {
 type NewJobRequest struct {
 	JobName   string `json:"name"`
 	JobURL    string `json:"url"`
-	Frequency uint   `json:"frequency"`
+	Frequency int64  `json:"frequency"`
 }

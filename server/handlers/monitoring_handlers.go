@@ -2,10 +2,21 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
+	"github.com/bootkemp-dev/datacat-backend/database"
 	"github.com/bootkemp-dev/datacat-backend/models"
+	"github.com/bootkemp-dev/datacat-backend/monitoring"
+	"github.com/bootkemp-dev/datacat-backend/utils"
+
 	"github.com/gin-gonic/gin"
 )
+
+var jobPool monitoring.Pool
+
+func init() {
+	jobPool = monitoring.NewPool()
+}
 
 func AddJob(c *gin.Context) {
 	var request models.NewJobRequest
@@ -42,7 +53,9 @@ func AddJob(c *gin.Context) {
 		return
 	}
 
-	//TODO: Insert job into the job pool
+	j := monitoring.NewJob(jobID, id.(float64), request.JobName, request.JobURL, time.Duration(request.Frequency))
+	jobPool.AddJob(j)
+	j.Run()
 
 	c.JSON(http.StatusOK, gin.H{
 		"id":   jobID,

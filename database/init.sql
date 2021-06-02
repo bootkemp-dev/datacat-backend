@@ -14,6 +14,7 @@ create table jobs (
     jobUrl text not null,
     frequency bigint not null,
     userid integer not null references users(id),
+    active boolean not null,
     created timestamp not null,
     modified timestamp not null
 );

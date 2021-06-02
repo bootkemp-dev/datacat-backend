@@ -12,7 +12,7 @@ create table jobs (
     id serial primary key not null,
     jobName varchar(50) not null,
     jobUrl text not null,
-    frequency integer not null,
+    frequency bigint not null,
     userid integer not null references users(id),
     created timestamp not null,
     modified timestamp not null

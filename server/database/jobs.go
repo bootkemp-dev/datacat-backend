@@ -8,14 +8,14 @@ import (
 )
 
 func InsertNewJob(name, url string, frequency int64, userid int) (int, error) {
-	stmt, err := db.Prepare(`insert into jobs(id, jobName, jobUrl, frequency, userid, created, modified) values(default, $1, $2, $3, $4, $5, $6) returning id`)
+	stmt, err := db.Prepare(`insert into jobs(id, jobName, jobUrl, frequency, userid, active, created, modified) values(default, $1, $2, $3, $4, $5, $6, $7) returning id`)
 	if err != nil {
 		log.Println(err)
 		return 0, err
 	}
 
 	var id int
-	err = stmt.QueryRow(name, url, frequency, userid, time.Now(), time.Now()).Scan(&id)
+	err = stmt.QueryRow(name, url, frequency, userid, true, time.Now(), time.Now()).Scan(&id)
 	if err != nil {
 		log.Println(err)
 		return 0, err

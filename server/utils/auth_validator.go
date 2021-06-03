@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/bootkemp-dev/datacat-backend/models"
 	"github.com/goware/emailx"
@@ -22,6 +23,9 @@ func NewUserValidator(user models.RegisterRequest) error {
 		}
 		return fmt.Errorf("Email validation failed")
 	}
+
+	log.Printf("Password 1: %s\n", user.Password1)
+	log.Printf("Password 2: %s\n", user.Password2)
 
 	if user.Password1 != user.Password2 {
 		return fmt.Errorf("Passwords do not match")

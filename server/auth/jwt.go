@@ -28,7 +28,7 @@ func init() {
 
 func GenerateToken(username string, id int) (string, *time.Time, error) {
 
-	expirationTime := time.Now().Add(15 * time.Minute)
+	expirationTime := time.Now().Add(1 * time.Hour)
 	claims := &Claims{
 		ID:       id,
 		Username: username,
@@ -63,9 +63,10 @@ func isTokenValid(tokenString string) (string, int, error) {
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-		id := claims["id"]
+		idFloat := claims["id"]
+		id := int(idFloat.(float64))
 		username := claims["username"]
-		return username.(string), id.(int), nil
+		return username.(string), id, nil
 	} else {
 		return "", 0, fmt.Errorf("reading claims failed")
 	}

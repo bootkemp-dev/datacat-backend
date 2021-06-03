@@ -10,8 +10,8 @@ import (
 )
 
 type Claims struct {
-	ID       float64 `json:"id"`
-	Username string  `json:"username"`
+	ID       int    `json:"id"`
+	Username string `json:"username"`
 	jwt.StandardClaims
 }
 
@@ -26,7 +26,7 @@ func init() {
 	c = *config
 }
 
-func GenerateToken(username string, id float64) (string, *time.Time, error) {
+func GenerateToken(username string, id int) (string, *time.Time, error) {
 
 	expirationTime := time.Now().Add(15 * time.Minute)
 	claims := &Claims{
@@ -49,7 +49,7 @@ func GenerateToken(username string, id float64) (string, *time.Time, error) {
 	return tokenString, &expirationTime, nil
 }
 
-func isTokenValid(tokenString string) (string, float64, error) {
+func isTokenValid(tokenString string) (string, int, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); ok == false {
 			return nil, fmt.Errorf("Token signing method is not valid: %v", token.Header["alg"])
@@ -65,7 +65,7 @@ func isTokenValid(tokenString string) (string, float64, error) {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		id := claims["id"]
 		username := claims["username"]
-		return username.(string), id.(float64), nil
+		return username.(string), id.(int), nil
 	} else {
 		return "", 0, fmt.Errorf("reading claims failed")
 	}

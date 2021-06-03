@@ -7,7 +7,7 @@ import (
 	"github.com/bootkemp-dev/datacat-backend/models"
 )
 
-func InsertNewJob(name, url string, frequency int64, userid float64) (int, error) {
+func InsertNewJob(name, url string, frequency int64, userid int) (int, error) {
 	stmt, err := db.Prepare(`insert into jobs(id, jobName, jobUrl, frequency, userid, created, modified) values(default, $1, $2, $3, $4, $5, $6) returning id`)
 	if err != nil {
 		log.Println(err)
@@ -40,7 +40,7 @@ func InsertNewJobLog(jobID int, down bool, timeChecked time.Time) error {
 	return nil
 }
 
-func GetAllJobs(userID float64) ([]*models.Job, error) {
+func GetAllJobs(userID int) ([]*models.Job, error) {
 	rows, err := db.Query(`select * from jobs where userid=$1`, userID)
 	if err != nil {
 		log.Println(err)

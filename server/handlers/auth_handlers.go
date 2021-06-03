@@ -141,7 +141,7 @@ func Login(c *gin.Context) {
 	}
 
 	//generate token
-	token, exp, err := auth.GenerateToken(request.Username, float64(id))
+	token, exp, err := auth.GenerateToken(request.Username, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -203,7 +203,7 @@ func Refresh(c *gin.Context) {
 		return
 	}
 
-	token, exp, err := auth.GenerateToken(username.(string), id.(float64))
+	token, exp, err := auth.GenerateToken(username.(string), id.(int))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,

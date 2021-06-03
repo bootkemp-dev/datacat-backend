@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"database/sql"
+	"log"
 	"net/http"
 	"time"
 
@@ -16,6 +18,8 @@ var jobPool monitoring.Pool
 
 func init() {
 	jobPool = monitoring.NewPool()
+	// load existing jobs
+
 }
 
 func AddJob(c *gin.Context) {
@@ -44,7 +48,7 @@ func AddJob(c *gin.Context) {
 		return
 	}
 
-	jobID, err := database.InsertNewJob(request.JobName, request.JobURL, request.Frequency, id.(float64))
+	jobID, err := database.InsertNewJob(request.JobName, request.JobURL, request.Frequency, id.(int))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -53,7 +57,7 @@ func AddJob(c *gin.Context) {
 		return
 	}
 
-	j := monitoring.NewJob(jobID, id.(float64), request.JobName, request.JobURL, time.Duration(request.Frequency))
+	j := monitoring.NewJob(jobID, id.(int), request.JobName, request.JobURL, time.Duration(request.Frequency))
 	jobPool.AddJob(j)
 	j.Run()
 
@@ -66,7 +70,46 @@ func AddJob(c *gin.Context) {
 }
 
 func GetAllJobs(c *gin.Context) {
+	userID, exists := c.Get("id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "id not set in context",
+		})
+		return
+	}
 
+	jobs, err := database.GetAllJobs(userID.(int))
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, gin.H{
+				"success": false,
+				"message": "No jobs found",
+			})
+			return
+		}
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	//check active jobs in the pool and assign them their status
+	for i := range jobs {
+		if jobs[i].Active == true {
+			pj, err := jobPool.GetJob(jobs[i].ID, userID.(int))
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			jobs[i].Status = pj.GetStatus()
+		}
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"jobs": jobs,
+	})
+	return
 }
 
 func DeleteJob(c *gin.Context) {

@@ -21,11 +21,11 @@ func (p Pool) AddJob(j Job) {
 	p.jobs = append(p.jobs, j)
 }
 
-func (p Pool) GetJob(jobID int, userID float64) (*Job, error) {
+func (p Pool) GetJob(jobID int, userID int) (*Job, error) {
 	return nil, fmt.Errorf("Job not found")
 }
 
-func NewJob(jobId int, userID float64, name, url string, freq time.Duration) Job {
+func NewJob(jobId int, userID int, name, url string, freq time.Duration) Job {
 	j := Job{
 		JobID:     jobId,
 		UserID:    userID,
@@ -42,7 +42,7 @@ func NewJob(jobId int, userID float64, name, url string, freq time.Duration) Job
 
 type Job struct {
 	JobID     int
-	UserID    float64
+	UserID    int
 	Name      string
 	URL       string
 	Frequency time.Duration

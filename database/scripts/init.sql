@@ -29,3 +29,7 @@ create table jobLog(
 
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO datacatdbuser;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO datacatdbuser;
+
+--insert test user
+--password: lol
+--insert into users(id, username, email, passwordHash, created, modified) values(default, "testuser", "testemail@gmail.com", "kSkOf4xYlaoSsXyftkvJtejcWLpUzpRZzJ0oDgHcZksATxnKjVGmy", current_timestamp, current_timestamp);

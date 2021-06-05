@@ -11,7 +11,7 @@ import (
 
 var db *sql.DB
 
-func init() {
+func Connect() {
 
 	c, err := config.NewConfig("./config.yml")
 	if err != nil {

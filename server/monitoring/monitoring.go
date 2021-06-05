@@ -17,15 +17,16 @@ type Pool struct {
 	jobs []Job
 }
 
-func (p Pool) AddJob(j Job) {
+func (p Pool) AddJob(j Job) []Job {
+	log.Println("add job to pool: ", j)
 	p.jobs = append(p.jobs, j)
-	log.Printf("Adding new job with ID: %d Name: %s UserID: %d\n to the pool", j.JobID, j.Name, j.UserID)
+	return p.jobs
 }
 
 func (p Pool) GetJob(jobID int, userID int) (*Job, error) {
-	for i := range p.jobs {
-		if p.jobs[i].JobID == jobID && p.jobs[i].UserID == userID {
-			return &p.jobs[i], nil
+	for _, v := range p.jobs {
+		if v.UserID == userID && v.JobID == jobID {
+			return &v, nil
 		}
 	}
 	return nil, fmt.Errorf("Job not found")
@@ -103,6 +104,6 @@ func (j Job) Stop() error {
 	return nil
 }
 
-func (j *Job) GetStatus() string {
+func (j Job) GetStatus() string {
 	return j.status
 }

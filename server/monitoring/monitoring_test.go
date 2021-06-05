@@ -1,30 +1,29 @@
 package monitoring
 
 import (
-	"fmt"
 	"log"
-	"sync"
 	"testing"
 	"time"
 )
 
-func TestPool(t *testing.T) {
+func TestAddJobToPool(t *testing.T) {
 	p := NewPool()
 	j := NewJob(1, 1, "test-job", "http://google.com", 10*time.Second)
-	p.AddJob(j)
-	var wg sync.WaitGroup
-	wg.Add(1)
-	j.Run()
+	p.Jobs = append(p.Jobs, j)
+	log.Println(len(p.Jobs))
+}
 
-	pj, err := p.GetJob(1, 1)
+func TestFindJob(t *testing.T) {
+	p := NewPool()
+	j1 := NewJob(1, 1, "test-job", "http://google.com", 10*time.Second)
+	j2 := NewJob(2, 1, "test-job", "http://google.com", 10*time.Second)
+
+	p.Jobs = append(p.Jobs, j1, j2)
+
+	jobFound, err := p.GetJob(2, 1)
 	if err != nil {
-		log.Println(err)
+		t.Fail()
 	}
 
-	log.Println(pj)
-
-	fmt.Println(p.jobs)
-
-	wg.Wait()
-
+	log.Println(jobFound.GetStatus())
 }

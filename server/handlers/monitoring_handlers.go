@@ -58,7 +58,7 @@ func AddJob(c *gin.Context) {
 	}
 
 	j := monitoring.NewJob(jobID, id.(int), request.JobName, request.JobURL, time.Duration(request.Frequency))
-	jobPool.AddJob(j)
+	jobPool.Jobs = append(jobPool.Jobs, j)
 	j.Run()
 
 	c.JSON(http.StatusOK, gin.H{

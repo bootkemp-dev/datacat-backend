@@ -10,21 +10,15 @@ import (
 )
 
 func NewPool() Pool {
-	return Pool{jobs: []Job{}}
+	return Pool{Jobs: []Job{}}
 }
 
 type Pool struct {
-	jobs []Job
-}
-
-func (p Pool) AddJob(j Job) []Job {
-	log.Println("add job to pool: ", j)
-	p.jobs = append(p.jobs, j)
-	return p.jobs
+	Jobs []Job
 }
 
 func (p Pool) GetJob(jobID int, userID int) (*Job, error) {
-	for _, v := range p.jobs {
+	for _, v := range p.Jobs {
 		if v.UserID == userID && v.JobID == jobID {
 			return &v, nil
 		}

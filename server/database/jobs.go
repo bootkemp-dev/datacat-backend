@@ -40,7 +40,7 @@ func InsertNewJobLog(jobID int, down bool, timeChecked time.Time) error {
 	return nil
 }
 
-func GetAllJobs(userID int) ([]*models.Job, error) {
+func GetAllJobsByUserID(userID int) ([]*models.Job, error) {
 	rows, err := db.Query(`select * from jobs where userid=$1`, userID)
 	if err != nil {
 		log.Println(err)

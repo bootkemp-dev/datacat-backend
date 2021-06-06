@@ -1,25 +1,20 @@
 package handlers
 
 import (
-	"database/sql"
-	"log"
 	"net/http"
-	"time"
+	"strconv"
 
 	"github.com/bootkemp-dev/datacat-backend/database"
 	"github.com/bootkemp-dev/datacat-backend/models"
-	"github.com/bootkemp-dev/datacat-backend/monitoring"
 	"github.com/bootkemp-dev/datacat-backend/utils"
 
 	"github.com/gin-gonic/gin"
 )
 
-var jobPool monitoring.Pool
+var jobPool models.Pool
 
 func init() {
-	jobPool = monitoring.NewPool()
-	// load existing jobs
-
+	jobPool = models.NewPool()
 }
 
 func AddJob(c *gin.Context) {
@@ -57,7 +52,7 @@ func AddJob(c *gin.Context) {
 		return
 	}
 
-	j := monitoring.NewJob(jobID, id.(int), request.JobName, request.JobURL, time.Duration(request.Frequency))
+	j := models.NewJob(jobID, id.(int), request.JobName, request.JobURL, request.Frequency)
 	jobPool.Jobs = append(jobPool.Jobs, j)
 	j.Run()
 
@@ -69,47 +64,50 @@ func AddJob(c *gin.Context) {
 	return
 }
 
-func GetAllJobs(c *gin.Context) {
-	userID, exists := c.Get("id")
-	if !exists {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"message": "id not set in context",
-		})
-		return
-	}
-
-	jobs, err := database.GetAllJobs(userID.(int))
+func GetJobstatus(c *gin.Context) {
+	id := c.Param("id")
+	jobID, err := strconv.Atoi(id)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, gin.H{
-				"success": false,
-				"message": "No jobs found",
-			})
-			return
-		}
-		c.JSON(http.StatusInternalServerError, gin.H{
+		c.JSON(http.StatusNotAcceptable, gin.H{
 			"success": false,
 			"message": err.Error(),
 		})
 		return
 	}
 
-	//check active jobs in the pool and assign them their status
-	for i := range jobs {
-		if jobs[i].Active == true {
-			pj, err := jobPool.GetJob(jobs[i].ID, userID.(int))
-			if err != nil {
-				log.Println(err)
-				continue
-			}
-			jobs[i].Status = pj.GetStatus()
-		}
+	userID, exists := c.Get("id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "id not set in context",
+		})
+		return
 	}
 
+	job, err := jobPool.GetJob(jobID, userID.(int))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	status := job.GetStatus()
 	c.JSON(http.StatusOK, gin.H{
-		"jobs": jobs,
+		"success": true,
+		"status":  status,
 	})
+
 	return
+}
+
+func GetAllJobs(c *gin.Context) {
+
+}
+
+func PauseJob(c *gin.Context) {
+
 }
 
 func DeleteJob(c *gin.Context) {

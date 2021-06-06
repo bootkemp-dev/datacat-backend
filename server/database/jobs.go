@@ -62,3 +62,19 @@ func GetAllJobsByUserID(userID int) ([]*models.Job, error) {
 
 	return jobs, nil
 }
+
+func DeleteJob(jobID, userID int) error {
+	stmt, err := db.Prepare(`delete from jobs where id=$1 and userid=$2`)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	_, err = stmt.Exec(jobID, userID)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}

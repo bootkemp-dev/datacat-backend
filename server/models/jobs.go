@@ -33,6 +33,7 @@ func (p Pool) GetJob(jobID int, userID int) (*Job, error) {
 func (p Pool) RemoveJob(jobID int, userID int) error {
 	for i := range p.Jobs {
 		if p.Jobs[i].ID == jobID && p.Jobs[i].UserID == userID {
+			p.Jobs[i].Stop()
 			copy(p.Jobs[i:], p.Jobs[i+1:])
 			p.Jobs[len(p.Jobs)-1] = nil
 			p.Jobs = p.Jobs[:len(p.Jobs)-1]

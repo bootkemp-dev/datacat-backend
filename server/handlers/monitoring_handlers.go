@@ -111,5 +111,47 @@ func PauseJob(c *gin.Context) {
 }
 
 func DeleteJob(c *gin.Context) {
+	id := c.Param("id")
+	jobID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
 
+	userID, exists := c.Get("id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "id not set in context",
+		})
+		return
+	}
+
+	/*
+		job, err := jobPool.GetJob(jobID, userID.(int))
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}*/
+
+	//delete job from the pool
+
+	// delete job from the database
+	err = database.DeleteJob(jobID, userID.(int))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.Status(http.StatusOK)
+	return
 }

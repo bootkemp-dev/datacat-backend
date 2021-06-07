@@ -103,6 +103,16 @@ func GetJobstatus(c *gin.Context) {
 }
 
 func GetAllJobs(c *gin.Context) {
+	/*
+		userID, exists := c.Get("id")
+		if !exists {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": "id not set in context",
+			})
+			return
+		}
+	*/
 
 }
 
@@ -181,4 +191,8 @@ func DeleteJob(c *gin.Context) {
 
 	c.Status(http.StatusOK)
 	return
+}
+
+func RestartJob(c *gin.Context) {
+
 }

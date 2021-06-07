@@ -53,8 +53,8 @@ type Job struct {
 	Active     bool      `json:"active"`
 	CreatedAt  time.Time `json:"created_at"`
 	ModifiedAt time.Time `json:"modified_at"`
-	status     string
-	done       chan bool
+	status     chan string
+	done       chan struct{}
 }
 
 func NewJob(jobId int, userID int, name, url string, freq int64) Job {
@@ -67,8 +67,8 @@ func NewJob(jobId int, userID int, name, url string, freq int64) Job {
 		Active:     false,
 		CreatedAt:  time.Now(),
 		ModifiedAt: time.Now(),
-		status:     "NA",
-		done:       make(chan bool),
+		status:     make(chan string),
+		done:       make(chan struct{}),
 	}
 
 	return j
@@ -81,18 +81,20 @@ func (j Job) Run() {
 		for {
 			select {
 			case <-j.done:
-				j.Active = false
 				log.Printf("Ending job | ID: %d | Name: %s | URL: %s\n", j.ID, j.Name, j.URL)
+				close(j.done)
+				j.status <- "NA"
 				return
 			default:
 				log.Printf("Job with ID: %d checking status of: %s ", j.ID, j.URL)
 				err := j.URLStatus()
 				if err != nil {
-					j.status = "DOWN"
+					j.status <- "DOWN"
+				} else {
+					j.status <- "UP"
 				}
-
-				time.Sleep(time.Duration(j.Frequency))
 			}
+			time.Sleep(time.Duration(j.Frequency))
 		}
 	}()
 }
@@ -106,16 +108,12 @@ func (j Job) URLStatus() error {
 	}
 }
 
-func (j Job) Stop() error {
-	if j.Active == false {
-		return fmt.Errorf("Job is not running")
-	} else {
-		j.done <- true
-	}
-
-	return nil
+func (j Job) Stop() {
+	go func() {
+		j.done <- struct{}{}
+	}()
 }
 
 func (j Job) GetStatus() string {
-	return j.status
+	return <-j.status
 }

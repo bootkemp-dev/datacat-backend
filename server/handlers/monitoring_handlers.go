@@ -53,7 +53,7 @@ func AddJob(c *gin.Context) {
 	}
 
 	j := models.NewJob(jobID, id.(int), request.JobName, request.JobURL, request.Frequency)
-	jobPool.Jobs = append(jobPool.Jobs, &j)
+	jobPool.Jobs = append(jobPool.Jobs, j)
 	j.Run()
 
 	c.JSON(http.StatusOK, gin.H{
@@ -129,16 +129,6 @@ func DeleteJob(c *gin.Context) {
 		})
 		return
 	}
-
-	/*
-		job, err := jobPool.GetJob(jobID, userID.(int))
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"success": false,
-				"message": err.Error(),
-			})
-			return
-		}*/
 
 	//delete job from the pool
 	err = jobPool.RemoveJob(jobID, userID.(int))

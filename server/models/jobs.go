@@ -14,17 +14,17 @@ type NewJobRequest struct {
 }
 
 func NewPool() Pool {
-	return Pool{Jobs: []*Job{}}
+	return Pool{Jobs: []Job{}}
 }
 
 type Pool struct {
-	Jobs []*Job
+	Jobs []Job
 }
 
 func (p Pool) GetJob(jobID int, userID int) (*Job, error) {
 	for _, v := range p.Jobs {
 		if v.UserID == userID && v.ID == jobID {
-			return v, nil
+			return &v, nil
 		}
 	}
 	return nil, fmt.Errorf("Job not found")
@@ -33,10 +33,11 @@ func (p Pool) GetJob(jobID int, userID int) (*Job, error) {
 func (p Pool) RemoveJob(jobID int, userID int) error {
 	for i := range p.Jobs {
 		if p.Jobs[i].ID == jobID && p.Jobs[i].UserID == userID {
-			p.Jobs[i].Stop()
-			copy(p.Jobs[i:], p.Jobs[i+1:])
-			p.Jobs[len(p.Jobs)-1] = nil
-			p.Jobs = p.Jobs[:len(p.Jobs)-1]
+			log.Println("job found")
+			if p.Jobs[i].Active == true {
+				p.Jobs[i].Stop()
+			}
+			p.Jobs = append(p.Jobs[:i], p.Jobs[i+1:]...)
 			return nil
 		}
 	}

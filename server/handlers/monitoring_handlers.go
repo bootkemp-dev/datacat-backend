@@ -86,7 +86,7 @@ func GetJobstatus(c *gin.Context) {
 
 	job, err := jobPool.GetJob(jobID, userID.(int))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
 			"message": err.Error(),
 		})
@@ -107,7 +107,37 @@ func GetAllJobs(c *gin.Context) {
 }
 
 func PauseJob(c *gin.Context) {
+	id := c.Param("id")
+	jobID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
 
+	userID, exists := c.Get("id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "id not set in context",
+		})
+		return
+	}
+
+	job, err := jobPool.GetJob(jobID, userID.(int))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	job.Stop()
+
+	c.Status(http.StatusOK)
 }
 
 func DeleteJob(c *gin.Context) {

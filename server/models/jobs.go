@@ -93,8 +93,8 @@ func (j Job) Run() {
 				} else {
 					j.status <- "UP"
 				}
+				time.Sleep(time.Duration(j.Frequency))
 			}
-			time.Sleep(time.Duration(j.Frequency))
 		}
 	}()
 }
@@ -110,6 +110,7 @@ func (j Job) URLStatus() error {
 
 func (j Job) Stop() {
 	go func() {
+		j.Active = false
 		j.done <- struct{}{}
 	}()
 }

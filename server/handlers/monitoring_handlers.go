@@ -146,6 +146,14 @@ func PauseJob(c *gin.Context) {
 	}
 
 	job.Stop()
+	err = database.UpdateJobActive(false, jobID, job.UserID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
 
 	c.Status(http.StatusOK)
 }

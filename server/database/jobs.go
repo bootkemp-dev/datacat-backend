@@ -78,3 +78,19 @@ func DeleteJob(jobID, userID int) error {
 
 	return nil
 }
+
+func UpdateJobActive(active bool, jobID, userID int) error {
+	stmt, err := db.Prepare(`update jobs set active = $1 where id = $2 and userid = $3`)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	_, err = stmt.Exec(active, jobID, userID)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}

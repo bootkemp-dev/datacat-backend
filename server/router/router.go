@@ -24,7 +24,7 @@ func setupRouter() *gin.Engine {
 
 		//background jobs
 		auth2.POST("/jobs", handlers.AddJob)
-		auth2.GET("/jobs", handlers.GetAllJobs)
+		auth2.GET("/jobs", handlers.GetJobs)
 		auth2.GET("/job/:id/status", handlers.GetJobstatus)
 		auth2.POST("/job/:id/pause", handlers.PauseJob)
 		auth2.POST("/job/:id/restart", handlers.RestartJob)

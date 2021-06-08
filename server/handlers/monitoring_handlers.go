@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"database/sql"
 	"net/http"
 	"strconv"
 
@@ -102,17 +103,72 @@ func GetJobstatus(c *gin.Context) {
 	return
 }
 
-func GetAllJobs(c *gin.Context) {
-	/*
-		userID, exists := c.Get("id")
-		if !exists {
-			c.JSON(http.StatusInternalServerError, gin.H{
+func GetJobs(c *gin.Context) {
+
+	userID, exists := c.Get("id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "id not set in context",
+		})
+		return
+	}
+
+	jobIDString := c.Query("id")
+	if jobIDString != "" {
+		jobID, err := strconv.Atoi(jobIDString)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
 				"success": false,
-				"message": "id not set in context",
+				"message": err.Error(),
 			})
 			return
 		}
-	*/
+
+		job, err := database.GetJobByID(jobID, userID.(int))
+		if err != nil {
+			if err == sql.ErrNoRows {
+				c.JSON(http.StatusNotFound, gin.H{
+					"success": false,
+					"message": "Job nor found",
+				})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"job":     &job,
+		})
+		return
+	} else {
+		jobs, err := database.GetAllJobsByUserID(userID.(int))
+		if err != nil {
+			if err == sql.ErrNoRows {
+				c.JSON(http.StatusNotFound, gin.H{
+					"success": false,
+					"message": "Job nor found",
+				})
+				return
+			}
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"job":     &jobs,
+		})
+		return
+	}
 
 }
 
@@ -202,5 +258,36 @@ func DeleteJob(c *gin.Context) {
 }
 
 func RestartJob(c *gin.Context) {
+	id := c.Param("id")
+	jobID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
 
+	userID, exists := c.Get("id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "id not set in context",
+		})
+		return
+	}
+
+	//get job
+	job, err := jobPool.GetJob(jobID, userID.(int))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if job.Active == true {
+		job.Stop()
+	}
 }

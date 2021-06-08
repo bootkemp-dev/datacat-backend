@@ -80,17 +80,28 @@ func DeleteJob(jobID, userID int) error {
 }
 
 func UpdateJobActive(active bool, jobID, userID int) error {
-	stmt, err := db.Prepare(`update jobs set active = $1 where id = $2 and userid = $3`)
+	stmt, err := db.Prepare(`update jobs set active = $1, modified = $2 where id = $3 and userid = $4`)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	_, err = stmt.Exec(active, jobID, userID)
+	_, err = stmt.Exec(active, time.Now(), jobID, userID)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
 	return nil
+}
+
+func GetJobByID(jobID, userID int) (*models.Job, error) {
+	var job *models.Job
+	err := db.QueryRow(`select * from jobs where id=$1 and userid=$2`, jobID, userID).Scan(&job.ID, &job.Name, &job.URL, &job.Frequency, &job.UserID, &job.Active, &job.CreatedAt, &job.ModifiedAt)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return job, nil
 }

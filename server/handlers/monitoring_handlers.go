@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 	"strconv"
 
@@ -93,8 +92,6 @@ func GetJobstatus(c *gin.Context) {
 		})
 		return
 	}
-
-	fmt.Println("JOB STATUS:", job.GetStatus())
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,

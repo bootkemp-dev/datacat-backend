@@ -38,7 +38,6 @@ func GenerateToken(username string, id int) (string, *time.Time, error) {
 			Issuer:    c.Jwt.Issuer,
 		},
 	}
-	log.Println("jwtKey: ", c.Jwt.JwtKey)
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString([]byte(c.Jwt.JwtKey))

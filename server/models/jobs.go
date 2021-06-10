@@ -122,7 +122,6 @@ func (j Job) Stop() {
 
 func (j *Job) SetStatus(s string) {
 	j.status = s
-	fmt.Println(j.status)
 }
 
 func (j *Job) SetActive(a bool) {
@@ -130,6 +129,5 @@ func (j *Job) SetActive(a bool) {
 }
 
 func (j *Job) GetStatus() string {
-	fmt.Println("JOB STATUS INSIDE MODELS:", j.status)
 	return j.status
 }

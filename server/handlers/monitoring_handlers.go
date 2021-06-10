@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -54,9 +55,8 @@ func AddJob(c *gin.Context) {
 	}
 
 	j := models.NewJob(jobID, id.(int), request.JobName, request.JobURL, request.Frequency)
-	jobPool.Jobs = append(jobPool.Jobs, j)
+	jobPool.AddJob(j)
 	j.Run()
-
 	c.JSON(http.StatusOK, gin.H{
 		"id":   jobID,
 		"name": request.JobName,
@@ -94,10 +94,11 @@ func GetJobstatus(c *gin.Context) {
 		return
 	}
 
-	status := job.GetStatus()
+	fmt.Println("JOB STATUS:", job.GetStatus())
+
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"status":  status,
+		"status":  job.GetStatus(),
 	})
 
 	return
@@ -201,7 +202,7 @@ func PauseJob(c *gin.Context) {
 		return
 	}
 
-	job.Stop()
+	go job.Stop()
 	err = database.UpdateJobActive(false, jobID, job.UserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -237,12 +238,13 @@ func DeleteJob(c *gin.Context) {
 	//delete job from the pool
 	err = jobPool.RemoveJob(jobID, userID.(int))
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
+		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
 			"message": err.Error(),
 		})
 		return
 	}
+
 	// delete job from the database
 	err = database.DeleteJob(jobID, userID.(int))
 	if err != nil {
@@ -289,5 +291,44 @@ func RestartJob(c *gin.Context) {
 
 	if job.Active == true {
 		job.Stop()
+		job.Run()
+	} else {
+		job.Run()
 	}
+}
+
+func GetJobActive(c *gin.Context) {
+	id := c.Param("id")
+	jobID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	userID, exists := c.Get("id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "id not set in context",
+		})
+		return
+	}
+
+	//get job
+	job, err := jobPool.GetJob(jobID, userID.(int))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"active":  job.Active,
+	})
 }

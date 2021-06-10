@@ -37,3 +37,30 @@ if everything ok: HTTP 200
     "status": up
 }
 ```
+
+## Get Jobs
+```
+Gets users jobs from the database, both active and inactive
+```
+
+Method: GET <br/>
+Protected: YES - login required <br/>
+Endpoint:
+```
+api/v1/protected/jobs
+```
+
+Response:
+```
+if server fails: HTTP 500
+if not authenticated: HTTP 401
+if everything ok: HTTP 200
+{
+    "success": true,
+    "jobs": {
+        
+    }
+}
+```
+
+

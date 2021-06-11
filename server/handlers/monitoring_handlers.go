@@ -2,12 +2,15 @@ package handlers
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/bootkemp-dev/datacat-backend/database"
 	"github.com/bootkemp-dev/datacat-backend/models"
 	"github.com/bootkemp-dev/datacat-backend/utils"
+	"github.com/gorilla/websocket"
 
 	"github.com/gin-gonic/gin"
 )
@@ -331,5 +334,56 @@ func GetJobActive(c *gin.Context) {
 }
 
 func JobInfoWebsocket(c *gin.Context) {
-	handler := websocket.Handler
+
+	id := c.Param("id")
+	jobID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	userID, exists := c.Get("id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "id not set in context",
+		})
+		return
+	}
+
+	//get job
+	job, err := jobPool.GetJob(jobID, userID.(int))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+	var upgrader = websocket.Upgrader{ReadBufferSize: 1024, WriteBufferSize: 1024}
+	ws, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	defer ws.Close()
+
+	for {
+		t, _, err := ws.ReadMessage()
+		if err != nil {
+			log.Println(err)
+			break
+		}
+		//prepare message
+		msgToSend := []byte(job.GetStatus())
+		ws.WriteMessage(t, msgToSend)
+
+		time.Sleep(time.Duration(job.Frequency))
+	}
 }

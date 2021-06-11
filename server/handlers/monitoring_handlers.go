@@ -329,3 +329,7 @@ func GetJobActive(c *gin.Context) {
 		"active":  job.Active,
 	})
 }
+
+func JobInfoWebsocket(c *gin.Context) {
+	handler := websocket.Handler
+}

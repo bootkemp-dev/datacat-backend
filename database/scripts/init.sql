@@ -6,6 +6,8 @@ create table users (
     passwordHash text not null,
     created timestamp not null,
     modified timestamp not null
+    passwordResetToken text,
+    passwordResetTokenExpDate timestamp
 );
 
 create table jobs (

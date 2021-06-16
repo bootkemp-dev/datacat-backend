@@ -30,6 +30,7 @@ func setupRouter() *gin.Engine {
 		auth2.POST("/job/:id/pause", handlers.PauseJob)
 		auth2.POST("/job/:id/restart", handlers.RestartJob)
 		auth2.DELETE("/job/:id", handlers.DeleteJob)
+		auth2.GET("/ws/:id", handlers.JobInfoWebsocket)
 	}
 
 	return r

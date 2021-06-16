@@ -202,6 +202,14 @@ func PauseJob(c *gin.Context) {
 		return
 	}
 
+	if job.GetActive() == false {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "Can not pause a job which is not active",
+		})
+		return
+	}
+
 	go job.Stop()
 	err = database.UpdateJobActive(false, jobID, job.UserID)
 	if err != nil {
@@ -289,7 +297,7 @@ func RestartJob(c *gin.Context) {
 		return
 	}
 
-	if job.Active == true {
+	if job.GetActive() == true {
 		job.Stop()
 		job.Run()
 	} else {
@@ -329,7 +337,7 @@ func GetJobActive(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{
 		"success": true,
-		"active":  job.Active,
+		"active":  job.GetActive(),
 	})
 }
 

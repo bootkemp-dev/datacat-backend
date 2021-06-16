@@ -78,6 +78,7 @@ api/v1/protected/job/:id/status
 Response:
 ```
 if server fails: HTTP 500
+if id is not valid: HTTP 406
 if not authenticated: HTTP 401
 if job with provided ID does not exist: HTTP 404
 if everything ok: HTTP 200
@@ -102,6 +103,7 @@ api/v1/protected/job/:id/active
 Response:
 ```
 if server fails: HTTP 500
+if id is not valid: HTTP 406
 if not authenticated: HTTP 401
 if job with provided ID does not exist: HTTP 404
 if everything ok: HTTP 200
@@ -112,7 +114,64 @@ if everything ok: HTTP 200
 ```
 
 ## Pause Job
+```
+Stops a running job, but does not remove it from the pool and the database
+```
 
+Method: POST <br/>
+Protected: YES - login required <br/>
+Endpoint:
+```
+api/v1/protected/job/:id/pause
+```
+
+Response:
+```
+if server fails: HTTP 500
+if id is not valid: HTTP 406
+if not authenticated: HTTP 401
+if job with provided ID does not exist: HTTP 404
+if job is not running: HTTP 400
+if everything ok: HTTP 200
+```
 ## Restart Job
+```
+Restarts the job with provided id
+```
+Method: POST <br/>
+Protected: YES - login required <br/>
+Endpoint:
+```
+api/v1/protected/job/:id/restart
+```
+
+Response:
+```
+if server fails: HTTP 500
+if id is not valid: HTTP 406
+if not authenticated: HTTP 401
+if job with provided ID does not exist: HTTP 404
+if everything ok: HTTP 200
+```
 
 ## Delete Job
+```
+Stops the job if running, removes it from the pool and deletes it from the database
+```
+Method: DELETE <br/>
+Protected: YES - login required <br/>
+Endpoint:
+```
+api/v1/protected/job/:id
+```
+
+Response:
+```
+if server fails: HTTP 500
+if id is not valid: HTTP 406
+if not authenticated: HTTP 401
+if job with provided ID does not exist: HTTP 404
+if everything ok: HTTP 200
+```
+
+

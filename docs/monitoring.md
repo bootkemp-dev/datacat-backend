@@ -63,4 +63,56 @@ if everything ok: HTTP 200
 }
 ```
 
+## Get Job Status
+```
+Returns current status of the job with id given as a param
+```
 
+Method: GET <br/>
+Protected: YES - login required <br/>
+Endpoint:
+```
+api/v1/protected/job/:id/status
+```
+
+Response:
+```
+if server fails: HTTP 500
+if not authenticated: HTTP 401
+if job with provided ID does not exist: HTTP 404
+if everything ok: HTTP 200
+{
+   "success": true,
+   "status": "job-status"
+}
+```
+
+## Get Job Active
+```
+Returns active attribute  of the job with id given as a param
+```
+
+Method: GET <br/>
+Protected: YES - login required <br/>
+Endpoint:
+```
+api/v1/protected/job/:id/active 
+```
+
+Response:
+```
+if server fails: HTTP 500
+if not authenticated: HTTP 401
+if job with provided ID does not exist: HTTP 404
+if everything ok: HTTP 200
+{
+   "success": true,
+   "active": true/false
+}
+```
+
+## Pause Job
+
+## Restart Job
+
+## Delete Job

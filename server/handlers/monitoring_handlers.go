@@ -375,6 +375,7 @@ func JobInfoWebsocket(c *gin.Context) {
 	defer ws.Close()
 
 	for {
+
 		t, _, err := ws.ReadMessage()
 		if err != nil {
 			log.Println(err)

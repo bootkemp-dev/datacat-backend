@@ -61,7 +61,7 @@ type Job struct {
 	Active     bool          `json:"active"`
 	CreatedAt  time.Time     `json:"created_at"`
 	ModifiedAt time.Time     `json:"modified_at"`
-	status     string        `json:"status"`
+	status     string        `json:"-"`
 	done       chan struct{} `json:"-"`
 }
 
@@ -130,4 +130,8 @@ func (j *Job) SetActive(a bool) {
 
 func (j *Job) GetStatus() string {
 	return j.status
+}
+
+func (j *Job) GetActive() bool {
+	return j.Active
 }

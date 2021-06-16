@@ -27,7 +27,13 @@ type Config struct {
 	Accounts struct {
 		ResetPasswordTokenLength     int `yaml:"resetPasswordTokenLength"`
 		ResetPasswordTokenExpiration int `yaml:"resetPasswordTokenExpiration"`
-	}
+	} `yaml:"accounts"`
+	Smtp struct {
+		Port       int    `yaml:"port"`
+		Host       string `yaml:"host"`
+		Password   string `yaml:"password"`
+		resetEmail string `yaml:"resetEmail"`
+	} `yaml:"smtp"`
 }
 
 func NewConfig(path string) (*Config, error) {

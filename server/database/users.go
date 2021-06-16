@@ -50,3 +50,28 @@ func GetIDAndPasswordHash(username string) (string, int, error) {
 
 	return password, id, nil
 }
+
+func GetUserEmail(username string) (string, error) {
+	var email string
+
+	err := db.QueryRow(`select email from users where username=$1`, username).Scan(&email)
+	if err != nil {
+		return "", err
+	}
+
+	return email, nil
+}
+
+func UpdateResetPasswordToken(username string, token string, expiration time.Time) error {
+	stmt, err := db.Prepare(`update users SET passwordResetToken=$1, passwordResetTokenExpDate=$2, modified=$3 where username=$4`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(token, expiration, time.Now(), username)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

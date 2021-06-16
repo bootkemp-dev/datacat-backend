@@ -33,6 +33,11 @@ func setupRouter() *gin.Engine {
 		auth2.GET("/ws/:id", handlers.JobInfoWebsocket)
 	}
 
+	accountsRouter := r.Group("accounts")
+	{
+		accountsRouter.POST("/reset_password", handlers.HandleResetPassword)
+	}
+
 	return r
 }
 

@@ -24,6 +24,10 @@ type Config struct {
 		JwtKey string `yaml:"jwtKey"`
 		Issuer string `yaml:"issuer"`
 	} `yaml:"jwt"`
+	Accounts struct {
+		ResetPasswordTokenLength     int `yaml:"resetPasswordTokenLength"`
+		ResetPasswordTokenExpiration int `yaml:"resetPasswordTokenExpiration"`
+	}
 }
 
 func NewConfig(path string) (*Config, error) {

@@ -10,8 +10,9 @@ import (
 
 type Config struct {
 	Server struct {
-		Host string `yaml:"host"`
-		Port string `yaml:"port"`
+		Host    string `yaml:"host"`
+		Port    string `yaml:"port"`
+		SiteURL string `yaml:"siteURL"`
 	} `yaml:"server"`
 	Database struct {
 		User     string `yaml:"user"`
@@ -32,7 +33,7 @@ type Config struct {
 		Port       int    `yaml:"port"`
 		Host       string `yaml:"host"`
 		Password   string `yaml:"password"`
-		resetEmail string `yaml:"resetEmail"`
+		ResetEmail string `yaml:"resetEmail"`
 	} `yaml:"smtp"`
 }
 

@@ -45,6 +45,21 @@ func HandleResetPassword(c *gin.Context) {
 	token, err := utils.GenerateRandomToken(config.Accounts.ResetPasswordTokenLength)
 	err = database.UpdateResetPasswordToken(username, token, time.Now().Local().Add(time.Hour*time.Duration(config.Accounts.ResetPasswordTokenExpiration)))
 
-	go mailing.SendResetPasswordEmail(email)
+	go mailing.SendResetPasswordEmail(username, email, token)
 	c.Status(http.StatusOK)
+}
+
+func HandlePasswordChangeAfterReset(c *gin.Context) {
+	/*
+		token := c.Query("token")
+		username := c.Query("username")
+	*/
+}
+
+func HandleResetTokenValidation(c *gin.Context) {
+	/*
+		username := c.Query("usename")
+		token := c.Query("token")
+	*/
+	//check
 }

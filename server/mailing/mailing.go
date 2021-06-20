@@ -12,6 +12,7 @@ var smtpHost string
 var smtpPort int
 var password string
 var fromEmail string
+var baseURL string
 
 func init() {
 	config, err := config.NewConfig("./config.yml")
@@ -23,16 +24,15 @@ func init() {
 	smtpPort = config.Smtp.Port
 	password = config.Smtp.Password
 	fromEmail = config.Smtp.ResetEmail
+	baseURL = config.Server.SiteURL
 }
 
-func connectToSMTP() error {
+func connectToSMTP() (*smtp.Client, error) {
 	c, err := smtp.Dial(fmt.Sprintf("%s:%d", smtpHost, smtpPort))
 	if err != nil {
 		log.Println(err)
-		return err
+		return nil, err
 	}
 
-	defer c.Close()
-
-	return nil
+	return c, nil
 }

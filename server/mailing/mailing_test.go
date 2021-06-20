@@ -3,8 +3,10 @@ package mailing
 import "testing"
 
 func TestConnectToSMTP(t *testing.T) {
-	err := connectToSMTP()
+	c, err := connectToSMTP()
 	if err != nil {
 		t.Fail()
 	}
+
+	defer c.Close()
 }

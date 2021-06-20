@@ -5,8 +5,8 @@ create table users (
     email varchar(100) unique not null,
     passwordHash text not null,
     created timestamp not null,
-    modified timestamp not null
-    passwordResetToken text,
+    modified timestamp not null,
+    passwordResetToken varchar(30),
     passwordResetTokenExpDate timestamp
 );
 

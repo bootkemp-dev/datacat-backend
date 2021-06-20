@@ -2,29 +2,37 @@ package mailing
 
 import (
 	"fmt"
+	"html/template"
 	"log"
-	"net/smtp"
 )
 
 func SendResetPasswordEmail(username, toEmail, token string) {
+	//prepare template
+	t, err := template.ParseFiles("./templates/reset_password_email.html")
+	if err != nil {
+		log.Fatal(err)
+	}
 
+	data := struct {
+		Username  string
+		ResetLink string
+	}{
+		Username:  username,
+		ResetLink: fmt.Sprintf("%s/change_passoword?username=%s?token=%s", baseURL, username, token),
+	}
+
+	t.Parse(data)
 }
 
 func send(from, to, subject string) error {
-
-	// prepare email header
-	header := make(map[string]string)
-	header["To"] = to
-	header["From"] = from
-	header["Subject"] = subject
-
-	c, err := smtp.Dial(fmt.Sprintf("%s:%d", smtpHost, smtpPort))
+	client, err := connectToSMTP()
 	if err != nil {
 		log.Println(err)
 		return err
 	}
 
-	defer c.Close()
+	defer client.Close()
 
-	return nil
+	client.Mail(from)
+	client.Rcpt(to)
 }

@@ -51,10 +51,16 @@ func HandleResetPassword(c *gin.Context) {
 }
 
 func HandlePasswordChangeAfterReset(c *gin.Context) {
-	/*
-		token := c.Query("token")
-		username := c.Query("username")
-	*/
+	username := c.Query("usename")
+	token := c.Query("token")
+
+	if username == "" || token == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "username and token not set as query params",
+		})
+		return
+	}
 }
 
 func HandleResetTokenValidation(c *gin.Context) {

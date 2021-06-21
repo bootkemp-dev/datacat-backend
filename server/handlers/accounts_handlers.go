@@ -43,7 +43,8 @@ func HandleResetPassword(c *gin.Context) {
 
 	//generate one time token with expiration date and insert it into the database
 	token, err := utils.GenerateRandomToken(config.Accounts.ResetPasswordTokenLength)
-	err = database.UpdateResetPasswordToken(username, token, time.Now().Local().Add(time.Hour*time.Duration(config.Accounts.ResetPasswordTokenExpiration)))
+	timeToAdd := config.Accounts.ResetPasswordTokenExpiration
+	err = database.UpdateResetPasswordToken(username, token, time.Now().Local().Add(time.Duration(timeToAdd)))
 
 	go mailing.SendResetPasswordEmail(username, email, token)
 	c.Status(http.StatusOK)
@@ -57,9 +58,39 @@ func HandlePasswordChangeAfterReset(c *gin.Context) {
 }
 
 func HandleResetTokenValidation(c *gin.Context) {
-	/*
-		username := c.Query("usename")
-		token := c.Query("token")
-	*/
-	//check
+
+	username := c.Query("usename")
+	token := c.Query("token")
+
+	if username == "" || token == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "username and token not set as query params",
+		})
+		return
+	}
+
+	//get token from the database
+	exp, err := database.GetResetPasswordTokenExpiration(username, token)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.Status(http.StatusUnauthorized)
+		} else {
+			c.Status(http.StatusInternalServerError)
+		}
+	}
+
+	if !utils.InTimeSpan(*exp) {
+		c.JSON(http.StatusNotAcceptable, gin.H{
+			"success": false,
+			"message": "password reset token already expired",
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"message": "password reset token is valid",
+	})
+
 }

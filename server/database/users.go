@@ -76,7 +76,7 @@ func UpdateResetPasswordToken(username string, token string, expiration time.Tim
 	return nil
 }
 
-func GetResetPasswordToken(username, token string) (*time.Time, error) {
+func GetResetPasswordTokenExpiration(username, token string) (*time.Time, error) {
 	var exp time.Time
 	err := db.QueryRow(`select passwordResetTokenExpDate from users where username=$1 and passwordResetToken=$2`, username, token).Scan(&exp)
 	if err != nil {

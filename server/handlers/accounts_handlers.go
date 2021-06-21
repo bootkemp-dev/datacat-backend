@@ -8,6 +8,7 @@ import (
 	"github.com/bootkemp-dev/datacat-backend/config"
 	"github.com/bootkemp-dev/datacat-backend/database"
 	"github.com/bootkemp-dev/datacat-backend/mailing"
+	"github.com/bootkemp-dev/datacat-backend/models"
 	"github.com/bootkemp-dev/datacat-backend/utils"
 	"github.com/gin-gonic/gin"
 )
@@ -61,6 +62,63 @@ func HandlePasswordChangeAfterReset(c *gin.Context) {
 		})
 		return
 	}
+
+	var request models.PasswordResetRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if request.Password1 != request.Password2 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "passwords do not match",
+		})
+		return
+	}
+
+	//get token from the database
+	exp, err := database.GetResetPasswordTokenExpiration(username, token)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.Status(http.StatusUnauthorized)
+		} else {
+			c.Status(http.StatusInternalServerError)
+		}
+	}
+
+	if !utils.InTimeSpan(*exp) {
+		c.JSON(http.StatusNotAcceptable, gin.H{
+			"success": false,
+			"message": "password reset token already expired",
+		})
+		return
+	}
+
+	//hash the password
+	hashedPassword, err := utils.HashPassword(request.Password1)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	//update password in the database
+	err = database.UpdatePasswordHash(username, hashedPassword)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.Status(http.StatusOK)
 }
 
 func HandleResetTokenValidation(c *gin.Context) {

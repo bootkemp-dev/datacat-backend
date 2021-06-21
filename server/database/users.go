@@ -86,3 +86,19 @@ func GetResetPasswordTokenExpiration(username, token string) (*time.Time, error)
 	return &exp, nil
 
 }
+
+func UpdatePasswordHash(username, passwordHash string) error {
+	stmt, err := db.Prepare(`update users set passwordHash = $1 where username=$2`)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	_, err = stmt.Exec(passwordHash, username)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	return nil
+}

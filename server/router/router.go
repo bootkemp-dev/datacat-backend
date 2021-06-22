@@ -35,8 +35,8 @@ func setupRouter() *gin.Engine {
 
 	accountsRouter := r.Group("accounts")
 	{
-		accountsRouter.POST("/reset_password_request", handlers.HandleResetPassword)
-		accountsRouter.POST("/reset_password", handlers.HandleResetTokenValidation)
+		accountsRouter.POST("/reset_password", handlers.HandleResetPassword)
+		accountsRouter.GET("/reset_password", handlers.HandleResetTokenValidation)
 		accountsRouter.PUT("/update_password", handlers.HandlePasswordChangeAfterReset)
 	}
 

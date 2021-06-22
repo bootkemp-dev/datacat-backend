@@ -24,6 +24,13 @@ func HandleResetPassword(c *gin.Context) {
 	}
 
 	username := c.Query("username")
+	if username == "" {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"message": "username not set",
+		})
+		return
+	}
 	//check if username exists in the database and get email
 	email, err := database.GetUserEmail(username)
 	if err != nil {

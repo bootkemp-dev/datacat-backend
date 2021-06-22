@@ -9,3 +9,4 @@ docker-compose up -d
 
 - [Authentication](docs/authentication.md)
 - [Monitoring](docs/monitoring.md)
+- [Accounts](docs/accounts.md)

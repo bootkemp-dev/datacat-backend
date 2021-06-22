@@ -32,7 +32,7 @@ Endpoint:
 
 Response:
 ```
-if username or token not sety: HTTP 400
+if username or token not set: HTTP 400
 if token not found in the database: HTTP 401
 if server fails HTTP 500
 if token is expired: HTTP 406
@@ -40,4 +40,30 @@ if everything OK: HTTP 200
 ```
 
 ## Update Password
+```
+Updates users password in the database
+```
+Method: PUT <br/>
+Protected: NO
+Endpoint:
+```
+/api/v1/accounts/update_password?username=some-username&token=XkMymLZLPacCehDk7aHPbnm5xAQDqS
+```
+Request JSON:
+```
+{
+    "password1": "new-password-1",
+    "password2": "new-password-1"
+}
+```
+
+Response:
+```
+if username or token not set: HTTP 400
+if passwords from the request do not match: HTTP 400
+if token not found in the database: HTTP 401
+if server fails HTTP 500
+if token is expired: HTTP 406
+if everything OK: HTTP 200
+```
 

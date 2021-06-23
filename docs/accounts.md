@@ -6,7 +6,7 @@ Generates a one time token of previously set length and it's expiration date. Th
 ```
 
 Method: POST <br/>
-Protected: NO
+Protected: NO <br/>
 Endpoint:
 ```
 /api/v1/accounts/reset_password?username=some-username
@@ -24,7 +24,7 @@ if everything OK: HTTP 200
 Checks if provided token belongs to the right username, and checks if it's valid
 ```
 Method: GET <br/>
-Protected: NO
+Protected: NO <br/>
 Endpoint:
 ```
 /api/v1/accounts/reset_password?username=some-username&token=XkMymLZLPacCehDk7aHPbnm5xAQDqS
@@ -44,7 +44,7 @@ if everything OK: HTTP 200
 Updates users password in the database
 ```
 Method: PUT <br/>
-Protected: NO
+Protected: NO <br/>
 Endpoint:
 ```
 /api/v1/accounts/update_password?username=some-username&token=XkMymLZLPacCehDk7aHPbnm5xAQDqS

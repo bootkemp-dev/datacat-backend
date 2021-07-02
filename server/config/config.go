@@ -35,6 +35,9 @@ type Config struct {
 		Password   string `yaml:"password"`
 		ResetEmail string `yaml:"resetEmail"`
 	} `yaml:"smtp"`
+	Logger struct {
+		DirPath string `yaml:"dirPath"`
+	} `yaml:"logger"`
 }
 
 func NewConfig(path string) (*Config, error) {

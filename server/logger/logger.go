@@ -41,3 +41,7 @@ func (l *Logger) WriteLogToFile(message string) error {
 	w.Flush()
 	return nil
 }
+
+func (l *Logger) Close() {
+	l.file.Close()
+}

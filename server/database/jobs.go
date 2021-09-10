@@ -105,3 +105,25 @@ func (db *Database) GetJobByID(jobID, userID int) (*models.Job, error) {
 
 	return job, nil
 }
+
+func (db *Database) GetAllJobs() ([]*models.Job, error) {
+	var jobs []*models.Job
+	rows, err := db.Query(`select * from jobs`)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	for rows.Next() {
+		var job models.Job
+		err := rows.Scan(&job.ID, &job.Name, &job.URL, &job.Frequency, &job.UserID, &job.Active, &job.CreatedAt, &job.ModifiedAt)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		jobs = append(jobs, &job)
+	}
+
+	return jobs, nil
+}

@@ -89,27 +89,29 @@ func NewJob(jobId int, userID int, name, url string, freq int64) *Job {
 func (j *Job) Run() {
 	log.Printf("Starting job | ID: %d | Name: %s\n", j.ID, j.Name)
 	j.SetActive(true)
-	go func() {
-		for {
-			select {
-			case <-j.done:
-				log.Printf("Ending job | ID: %d | Name: %s | URL: %s\n", j.ID, j.Name, j.URL)
-				j.SetStatus("NA")
-				j.SetActive(false)
-				return
-			default:
-				log.Printf("Job with ID: %d checking status of: %s ", j.ID, j.URL)
-				err := j.URLStatus()
-				if err != nil {
-					log.Println(err)
-					j.SetStatus("DOWN")
-				} else {
-					j.SetStatus("UP")
-				}
+	go j.run()
+}
+
+func (j *Job) run() {
+	for {
+		select {
+		case <-j.done:
+			log.Printf("Ending job | ID: %d | Name: %s | URL: %s\n", j.ID, j.Name, j.URL)
+			j.SetStatus("NA")
+			j.SetActive(false)
+			return
+		default:
+			log.Printf("Job with ID: %d checking status of: %s ", j.ID, j.URL)
+			err := j.URLStatus()
+			if err != nil {
+				log.Println(err)
+				j.SetStatus("DOWN")
+			} else {
+				j.SetStatus("UP")
 			}
-			time.Sleep(time.Duration(j.Frequency))
 		}
-	}()
+		time.Sleep(time.Duration(j.Frequency))
+	}
 }
 
 func (j Job) URLStatus() error {

@@ -8,26 +8,30 @@ import (
 	"github.com/bootkemp-dev/datacat-backend/config"
 )
 
-var smtpHost string
-var smtpPort int
-var password string
-var fromEmail string
-var baseURL string
-
-func init() {
-	config, err := config.NewConfig("./config.yml")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	smtpHost = config.Smtp.Host
-	smtpPort = config.Smtp.Port
-	password = config.Smtp.Password
-	fromEmail = config.Smtp.ResetEmail
-	baseURL = config.Server.SiteURL
+type Mailing struct {
+	client    *smtp.Client
+	fromEmail string
+	password  string
+	smtpHost  string
+	smtpPort  int
 }
 
-func connectToSMTP() (*smtp.Client, error) {
+func NewMailing(c config.Config) (*Mailing, error) {
+	client, err := connectToSMTP(c.Smtp.Host, c.Smtp.Port)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Mailing{
+		client:    client,
+		fromEmail: c.Smtp.ResetEmail,
+		password:  c.Smtp.Password,
+		smtpHost:  c.Smtp.Host,
+		smtpPort:  c.Smtp.Port,
+	}, nil
+}
+
+func connectToSMTP(smtpHost string, smtpPort int) (*smtp.Client, error) {
 	c, err := smtp.Dial(fmt.Sprintf("%s:%d", smtpHost, smtpPort))
 	if err != nil {
 		log.Println(err)

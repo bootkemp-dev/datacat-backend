@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/bootkemp-dev/datacat-backend/config"
-	"github.com/bootkemp-dev/datacat-backend/mailing"
 	"github.com/bootkemp-dev/datacat-backend/models"
 	"github.com/bootkemp-dev/datacat-backend/utils"
 	"github.com/gin-gonic/gin"
@@ -53,7 +52,7 @@ func (a *API) HandleResetPassword(c *gin.Context) {
 	timeToAdd := config.Accounts.ResetPasswordTokenExpiration
 	err = a.database.UpdateResetPasswordToken(username, token, time.Now().Local().Add(time.Duration(timeToAdd)))
 
-	go mailing.SendResetPasswordEmail(username, email, token)
+	go a.mailing.SendResetPasswordEmail(username, email, token)
 	c.Status(http.StatusOK)
 }
 

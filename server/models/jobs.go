@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/bootkemp-dev/datacat-backend/logger"
 )
 
 type NewJobRequest struct {
@@ -63,9 +65,11 @@ type Job struct {
 	ModifiedAt time.Time     `json:"modified_at"`
 	status     string        `json:"-"`
 	done       chan struct{} `json:"-"`
+	logger     logger.Logger `json:"-"`
 }
 
 func NewJob(jobId int, userID int, name, url string, freq int64) *Job {
+
 	j := Job{
 		ID:         jobId,
 		Name:       name,
@@ -99,8 +103,9 @@ func (j *Job) Run() {
 				if err != nil {
 					log.Println(err)
 					j.SetStatus("DOWN")
+				} else {
+					j.SetStatus("UP")
 				}
-				j.SetStatus("UP")
 			}
 			time.Sleep(time.Duration(j.Frequency))
 		}

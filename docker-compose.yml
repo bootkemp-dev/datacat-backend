@@ -10,6 +10,10 @@ services:
             - default
         volumes:
             - data:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD", "pg_isready", "-U", "datacatdbuser"]
+            interval: 10s
+            start_period: 30s
     server:
         build:
             context: ./server

@@ -87,7 +87,7 @@ func (a *API) Register(c *gin.Context) {
 		return
 	}
 
-	c.Status(200)
+	c.Status(201)
 	return
 }
 

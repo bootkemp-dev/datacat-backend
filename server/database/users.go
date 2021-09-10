@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-func CheckIfUsernameExists(username string) error {
+func (db *Database) CheckIfUsernameExists(username string) error {
 	err := db.QueryRow(`select username from users where username=$1`, username).Scan(&username)
 	if err != nil {
 		log.Println(err)
@@ -15,7 +15,7 @@ func CheckIfUsernameExists(username string) error {
 	return nil
 }
 
-func CheckIfEmailExists(email string) error {
+func (db *Database) CheckIfEmailExists(email string) error {
 	err := db.QueryRow(`select email from users where email=$1`, email).Scan(&email)
 	if err != nil {
 		log.Println(err)
@@ -25,7 +25,7 @@ func CheckIfEmailExists(email string) error {
 	return nil
 }
 
-func InsertUser(username, email, password string) error {
+func (db *Database) InsertUser(username, email, password string) error {
 	stmt, err := db.Prepare(`insert into users(id, username, email, passwordHash, created, modified) values(default, $1, $2, $3, $4, $5)`)
 	if err != nil {
 		return err
@@ -39,7 +39,7 @@ func InsertUser(username, email, password string) error {
 	return nil
 }
 
-func GetIDAndPasswordHash(username string) (string, int, error) {
+func (db *Database) GetIDAndPasswordHash(username string) (string, int, error) {
 	var id int
 	var password string
 
@@ -51,7 +51,7 @@ func GetIDAndPasswordHash(username string) (string, int, error) {
 	return password, id, nil
 }
 
-func GetUserEmail(username string) (string, error) {
+func (db *Database) GetUserEmail(username string) (string, error) {
 	var email string
 
 	err := db.QueryRow(`select email from users where username=$1`, username).Scan(&email)
@@ -62,7 +62,7 @@ func GetUserEmail(username string) (string, error) {
 	return email, nil
 }
 
-func UpdateResetPasswordToken(username string, token string, expiration time.Time) error {
+func (db *Database) UpdateResetPasswordToken(username string, token string, expiration time.Time) error {
 	stmt, err := db.Prepare(`update users SET passwordResetToken=$1, passwordResetTokenExpDate=$2, modified=$3 where username=$4`)
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func UpdateResetPasswordToken(username string, token string, expiration time.Tim
 	return nil
 }
 
-func GetResetPasswordTokenExpiration(username, token string) (*time.Time, error) {
+func (db *Database) GetResetPasswordTokenExpiration(username, token string) (*time.Time, error) {
 	var exp time.Time
 	err := db.QueryRow(`select passwordResetTokenExpDate from users where username=$1 and passwordResetToken=$2`, username, token).Scan(&exp)
 	if err != nil {
@@ -87,7 +87,7 @@ func GetResetPasswordTokenExpiration(username, token string) (*time.Time, error)
 
 }
 
-func UpdatePasswordHash(username, passwordHash string) error {
+func (db *Database) UpdatePasswordHash(username, passwordHash string) error {
 	stmt, err := db.Prepare(`update users set passwordHash = $1 where username=$2`)
 	if err != nil {
 		log.Println(err)

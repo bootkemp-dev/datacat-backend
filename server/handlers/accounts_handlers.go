@@ -6,14 +6,13 @@ import (
 	"time"
 
 	"github.com/bootkemp-dev/datacat-backend/config"
-	"github.com/bootkemp-dev/datacat-backend/database"
 	"github.com/bootkemp-dev/datacat-backend/mailing"
 	"github.com/bootkemp-dev/datacat-backend/models"
 	"github.com/bootkemp-dev/datacat-backend/utils"
 	"github.com/gin-gonic/gin"
 )
 
-func HandleResetPassword(c *gin.Context) {
+func (a *API) HandleResetPassword(c *gin.Context) {
 	config, err := config.NewConfig("./config.yml")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -32,7 +31,7 @@ func HandleResetPassword(c *gin.Context) {
 		return
 	}
 	//check if username exists in the database and get email
-	email, err := database.GetUserEmail(username)
+	email, err := a.database.GetUserEmail(username)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, gin.H{
@@ -52,13 +51,13 @@ func HandleResetPassword(c *gin.Context) {
 	//generate one time token with expiration date and insert it into the database
 	token, err := utils.GenerateRandomToken(config.Accounts.ResetPasswordTokenLength)
 	timeToAdd := config.Accounts.ResetPasswordTokenExpiration
-	err = database.UpdateResetPasswordToken(username, token, time.Now().Local().Add(time.Duration(timeToAdd)))
+	err = a.database.UpdateResetPasswordToken(username, token, time.Now().Local().Add(time.Duration(timeToAdd)))
 
 	go mailing.SendResetPasswordEmail(username, email, token)
 	c.Status(http.StatusOK)
 }
 
-func HandlePasswordChangeAfterReset(c *gin.Context) {
+func (a *API) HandlePasswordChangeAfterReset(c *gin.Context) {
 	username := c.Query("usename")
 	token := c.Query("token")
 
@@ -88,7 +87,7 @@ func HandlePasswordChangeAfterReset(c *gin.Context) {
 	}
 
 	//get token from the database
-	exp, err := database.GetResetPasswordTokenExpiration(username, token)
+	exp, err := a.database.GetResetPasswordTokenExpiration(username, token)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.Status(http.StatusUnauthorized)
@@ -116,7 +115,7 @@ func HandlePasswordChangeAfterReset(c *gin.Context) {
 	}
 
 	//update password in the database
-	err = database.UpdatePasswordHash(username, hashedPassword)
+	err = a.database.UpdatePasswordHash(username, hashedPassword)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -128,7 +127,7 @@ func HandlePasswordChangeAfterReset(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func HandleResetTokenValidation(c *gin.Context) {
+func (a *API) HandleResetTokenValidation(c *gin.Context) {
 
 	username := c.Query("usename")
 	token := c.Query("token")
@@ -142,7 +141,7 @@ func HandleResetTokenValidation(c *gin.Context) {
 	}
 
 	//get token from the database
-	exp, err := database.GetResetPasswordTokenExpiration(username, token)
+	exp, err := a.database.GetResetPasswordTokenExpiration(username, token)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.Status(http.StatusUnauthorized)

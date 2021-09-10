@@ -5,14 +5,13 @@ import (
 	"net/http"
 
 	"github.com/bootkemp-dev/datacat-backend/auth"
-	"github.com/bootkemp-dev/datacat-backend/database"
 	"github.com/bootkemp-dev/datacat-backend/models"
 	"github.com/bootkemp-dev/datacat-backend/utils"
 	"github.com/gin-gonic/gin"
 )
 
 //Register takes new user as a request, validates the data and inserts it into the database
-func Register(c *gin.Context) {
+func (a *API) Register(c *gin.Context) {
 	var request models.RegisterRequest
 
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -34,7 +33,7 @@ func Register(c *gin.Context) {
 	}
 
 	//check if username and email are already in the database
-	err = database.CheckIfUsernameExists(request.Username)
+	err = a.database.CheckIfUsernameExists(request.Username)
 	if err != sql.ErrNoRows {
 		if err == nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -51,7 +50,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-	err = database.CheckIfEmailExists(request.Email)
+	err = a.database.CheckIfEmailExists(request.Email)
 	if err != sql.ErrNoRows {
 		if err == nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -79,7 +78,7 @@ func Register(c *gin.Context) {
 	}
 
 	//insert user
-	err = database.InsertUser(request.Username, request.Email, hashedPassword)
+	err = a.database.InsertUser(request.Username, request.Email, hashedPassword)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -92,7 +91,7 @@ func Register(c *gin.Context) {
 	return
 }
 
-func Login(c *gin.Context) {
+func (a *API) Login(c *gin.Context) {
 	var request models.LoginRequest
 
 	if err := c.ShouldBindJSON(&request); err != nil {
@@ -104,7 +103,7 @@ func Login(c *gin.Context) {
 	}
 
 	//check if the username is in the database
-	err := database.CheckIfUsernameExists(request.Username)
+	err := a.database.CheckIfUsernameExists(request.Username)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -121,7 +120,7 @@ func Login(c *gin.Context) {
 	}
 
 	//get id and password
-	passwordHash, id, err := database.GetIDAndPasswordHash(request.Username)
+	passwordHash, id, err := a.database.GetIDAndPasswordHash(request.Username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -162,7 +161,7 @@ func Login(c *gin.Context) {
 	return
 }
 
-func Me(c *gin.Context) {
+func (a *API) Me(c *gin.Context) {
 	username, exists := c.Get("username")
 	if !exists {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -186,7 +185,7 @@ func Me(c *gin.Context) {
 	return
 }
 
-func Refresh(c *gin.Context) {
+func (a *API) Refresh(c *gin.Context) {
 	username, exists := c.Get("username")
 	if !exists {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -222,6 +221,6 @@ func Refresh(c *gin.Context) {
 	})
 }
 
-func Logout(c *gin.Context) {
+func (a *API) Logout(c *gin.Context) {
 
 }

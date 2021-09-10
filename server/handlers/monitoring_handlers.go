@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/bootkemp-dev/datacat-backend/database"
 	"github.com/bootkemp-dev/datacat-backend/models"
 	"github.com/bootkemp-dev/datacat-backend/utils"
 	"github.com/gorilla/websocket"
@@ -15,13 +14,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var jobPool models.Pool
-
-func init() {
-	jobPool = models.NewPool()
-}
-
-func AddJob(c *gin.Context) {
+func (a *API) AddJob(c *gin.Context) {
 	var request models.NewJobRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -47,7 +40,7 @@ func AddJob(c *gin.Context) {
 		return
 	}
 
-	jobID, err := database.InsertNewJob(request.JobName, request.JobURL, request.Frequency, id.(int))
+	jobID, err := a.database.InsertNewJob(request.JobName, request.JobURL, request.Frequency, id.(int))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -57,7 +50,7 @@ func AddJob(c *gin.Context) {
 	}
 
 	j := models.NewJob(jobID, id.(int), request.JobName, request.JobURL, request.Frequency)
-	jobPool.AddJob(j)
+	a.jobPool.AddJob(j)
 	j.Run()
 	c.JSON(http.StatusOK, gin.H{
 		"id":   jobID,
@@ -67,7 +60,7 @@ func AddJob(c *gin.Context) {
 	return
 }
 
-func GetJobstatus(c *gin.Context) {
+func (a *API) GetJobstatus(c *gin.Context) {
 	id := c.Param("id")
 	jobID, err := strconv.Atoi(id)
 	if err != nil {
@@ -87,7 +80,7 @@ func GetJobstatus(c *gin.Context) {
 		return
 	}
 
-	job, err := jobPool.GetJob(jobID, userID.(int))
+	job, err := a.jobPool.GetJob(jobID, userID.(int))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
@@ -104,7 +97,7 @@ func GetJobstatus(c *gin.Context) {
 	return
 }
 
-func GetJobs(c *gin.Context) {
+func (a *API) GetJobs(c *gin.Context) {
 
 	userID, exists := c.Get("id")
 	if !exists {
@@ -126,7 +119,7 @@ func GetJobs(c *gin.Context) {
 			return
 		}
 
-		job, err := database.GetJobByID(jobID, userID.(int))
+		job, err := a.database.GetJobByID(jobID, userID.(int))
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.JSON(http.StatusNotFound, gin.H{
@@ -148,12 +141,12 @@ func GetJobs(c *gin.Context) {
 		})
 		return
 	} else {
-		jobs, err := database.GetAllJobsByUserID(userID.(int))
+		jobs, err := a.database.GetAllJobsByUserID(userID.(int))
 		if err != nil {
 			if err == sql.ErrNoRows {
 				c.JSON(http.StatusNotFound, gin.H{
 					"success": false,
-					"message": "Job nor found",
+					"message": "Job not found",
 				})
 				return
 			}
@@ -173,7 +166,7 @@ func GetJobs(c *gin.Context) {
 
 }
 
-func PauseJob(c *gin.Context) {
+func (a *API) PauseJob(c *gin.Context) {
 	id := c.Param("id")
 	jobID, err := strconv.Atoi(id)
 	if err != nil {
@@ -193,7 +186,7 @@ func PauseJob(c *gin.Context) {
 		return
 	}
 
-	job, err := jobPool.GetJob(jobID, userID.(int))
+	job, err := a.jobPool.GetJob(jobID, userID.(int))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
@@ -211,7 +204,7 @@ func PauseJob(c *gin.Context) {
 	}
 
 	go job.Stop()
-	err = database.UpdateJobActive(false, jobID, job.UserID)
+	err = a.database.UpdateJobActive(false, jobID, job.UserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -223,7 +216,7 @@ func PauseJob(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-func DeleteJob(c *gin.Context) {
+func (a *API) DeleteJob(c *gin.Context) {
 	id := c.Param("id")
 	jobID, err := strconv.Atoi(id)
 	if err != nil {
@@ -244,7 +237,7 @@ func DeleteJob(c *gin.Context) {
 	}
 
 	//delete job from the pool
-	err = jobPool.RemoveJob(jobID, userID.(int))
+	err = a.jobPool.RemoveJob(jobID, userID.(int))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
@@ -254,7 +247,7 @@ func DeleteJob(c *gin.Context) {
 	}
 
 	// delete job from the database
-	err = database.DeleteJob(jobID, userID.(int))
+	err = a.database.DeleteJob(jobID, userID.(int))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -267,7 +260,7 @@ func DeleteJob(c *gin.Context) {
 	return
 }
 
-func RestartJob(c *gin.Context) {
+func (a *API) RestartJob(c *gin.Context) {
 	id := c.Param("id")
 	jobID, err := strconv.Atoi(id)
 	if err != nil {
@@ -288,7 +281,7 @@ func RestartJob(c *gin.Context) {
 	}
 
 	//get job
-	job, err := jobPool.GetJob(jobID, userID.(int))
+	job, err := a.jobPool.GetJob(jobID, userID.(int))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
@@ -305,7 +298,7 @@ func RestartJob(c *gin.Context) {
 	}
 }
 
-func GetJobActive(c *gin.Context) {
+func (a *API) GetJobActive(c *gin.Context) {
 	id := c.Param("id")
 	jobID, err := strconv.Atoi(id)
 	if err != nil {
@@ -326,7 +319,7 @@ func GetJobActive(c *gin.Context) {
 	}
 
 	//get job
-	job, err := jobPool.GetJob(jobID, userID.(int))
+	job, err := a.jobPool.GetJob(jobID, userID.(int))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,
@@ -341,7 +334,7 @@ func GetJobActive(c *gin.Context) {
 	})
 }
 
-func JobInfoWebsocket(c *gin.Context) {
+func (a *API) JobInfoWebsocket(c *gin.Context) {
 
 	id := c.Param("id")
 	jobID, err := strconv.Atoi(id)
@@ -363,7 +356,7 @@ func JobInfoWebsocket(c *gin.Context) {
 	}
 
 	//get job
-	job, err := jobPool.GetJob(jobID, userID.(int))
+	job, err := a.jobPool.GetJob(jobID, userID.(int))
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"success": false,

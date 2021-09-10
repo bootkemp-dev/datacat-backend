@@ -9,14 +9,20 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var db *sql.DB
+type Database struct {
+	*sql.DB
+}
 
-func Connect() {
-
-	c, err := config.NewConfig("./config.yml")
+func NewDatabase(c config.Config) (*Database, error) {
+	db, err := connect(c)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
+
+	return &Database{db}, nil
+}
+
+func connect(c config.Config) (*sql.DB, error) {
 
 	psqlInfo := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable", c.Database.User, c.Database.Password, c.Database.Host, c.Database.Port, c.Database.Name)
 	log.Println(psqlInfo)
@@ -24,13 +30,15 @@ func Connect() {
 	database, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
 		log.Fatalf("sql.Open failed: %v\n", err)
+		return nil, err
 	}
 
 	err = database.Ping()
 	if err != nil {
 		log.Fatalf("database.Ping failed: %v\n", err)
+		return nil, err
 	}
 
-	db = database
 	log.Println("[+] Connected to the database")
+	return database, nil
 }

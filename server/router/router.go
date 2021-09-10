@@ -2,48 +2,55 @@ package router
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/bootkemp-dev/datacat-backend/auth"
+	"github.com/bootkemp-dev/datacat-backend/config"
 	"github.com/bootkemp-dev/datacat-backend/handlers"
 	"github.com/gin-gonic/gin"
 )
 
-func setupRouter() *gin.Engine {
+func setupRouter(c config.Config) *gin.Engine {
+	api, err := handlers.NewApi(c)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	r := gin.Default()
 	authRouter := r.Group("auth")
 	{
-		authRouter.POST("/register", handlers.Register)
-		authRouter.POST("/login", handlers.Login)
+		authRouter.POST("/register", api.Register)
+		authRouter.POST("/login", api.Login)
 	}
 	auth2 := r.Group("protected")
 	{
 		auth2.Use(auth.AuthMiddleware())
-		auth2.GET("/me", handlers.Me)
-		auth2.POST("/refresh", handlers.Refresh)
-		auth2.POST("/logout", handlers.Logout)
+		auth2.GET("/me", api.Me)
+		auth2.POST("/refresh", api.Refresh)
+		auth2.POST("/logout", api.Logout)
 
 		//background jobs
-		auth2.POST("/jobs", handlers.AddJob)
-		auth2.GET("/jobs", handlers.GetJobs)
-		auth2.GET("/job/:id/status", handlers.GetJobstatus)
-		auth2.GET("/job/:id/active", handlers.GetJobActive)
-		auth2.POST("/job/:id/pause", handlers.PauseJob)
-		auth2.POST("/job/:id/restart", handlers.RestartJob)
-		auth2.DELETE("/job/:id", handlers.DeleteJob)
-		auth2.GET("/ws/:id", handlers.JobInfoWebsocket)
+		auth2.POST("/jobs", api.AddJob)
+		auth2.GET("/jobs", api.GetJobs)
+		auth2.GET("/job/:id/status", api.GetJobstatus)
+		auth2.GET("/job/:id/active", api.GetJobActive)
+		auth2.POST("/job/:id/pause", api.PauseJob)
+		auth2.POST("/job/:id/restart", api.RestartJob)
+		auth2.DELETE("/job/:id", api.DeleteJob)
+		auth2.GET("/ws/:id", api.JobInfoWebsocket)
 	}
 
 	accountsRouter := r.Group("accounts")
 	{
-		accountsRouter.POST("/reset_password", handlers.HandleResetPassword)
-		accountsRouter.GET("/reset_password", handlers.HandleResetTokenValidation)
-		accountsRouter.PUT("/update_password", handlers.HandlePasswordChangeAfterReset)
+		accountsRouter.POST("/reset_password", api.HandleResetPassword)
+		accountsRouter.GET("/reset_password", api.HandleResetTokenValidation)
+		accountsRouter.PUT("/update_password", api.HandlePasswordChangeAfterReset)
 	}
 
 	return r
 }
 
-func Run(port string) {
-	router := setupRouter()
-	router.Run(fmt.Sprintf(":%s", port))
+func Run(c config.Config) {
+	router := setupRouter(c)
+	router.Run(fmt.Sprintf(":%s", c.Server.Port))
 }

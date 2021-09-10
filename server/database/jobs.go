@@ -7,7 +7,7 @@ import (
 	"github.com/bootkemp-dev/datacat-backend/models"
 )
 
-func InsertNewJob(name, url string, frequency int64, userid int) (int, error) {
+func (db *Database) InsertNewJob(name, url string, frequency int64, userid int) (int, error) {
 	stmt, err := db.Prepare(`insert into jobs(id, jobName, jobUrl, frequency, userid, active, created, modified) values(default, $1, $2, $3, $4, $5, $6, $7) returning id`)
 	if err != nil {
 		log.Println(err)
@@ -24,7 +24,7 @@ func InsertNewJob(name, url string, frequency int64, userid int) (int, error) {
 	return id, nil
 }
 
-func InsertNewJobLog(jobID int, down bool, timeChecked time.Time) error {
+func (db *Database) InsertNewJobLog(jobID int, down bool, timeChecked time.Time) error {
 	stmt, err := db.Prepare(`insert into jobLog(id, jobID, down, timeChecked) values(default, $1, $2, $3)`)
 	if err != nil {
 		log.Println(err)
@@ -40,7 +40,7 @@ func InsertNewJobLog(jobID int, down bool, timeChecked time.Time) error {
 	return nil
 }
 
-func GetAllJobsByUserID(userID int) ([]*models.Job, error) {
+func (db *Database) GetAllJobsByUserID(userID int) ([]*models.Job, error) {
 	rows, err := db.Query(`select * from jobs where userid=$1`, userID)
 	if err != nil {
 		log.Println(err)
@@ -63,7 +63,7 @@ func GetAllJobsByUserID(userID int) ([]*models.Job, error) {
 	return jobs, nil
 }
 
-func DeleteJob(jobID, userID int) error {
+func (db *Database) DeleteJob(jobID, userID int) error {
 	stmt, err := db.Prepare(`delete from jobs where id=$1 and userid=$2`)
 	if err != nil {
 		log.Println(err)
@@ -79,7 +79,7 @@ func DeleteJob(jobID, userID int) error {
 	return nil
 }
 
-func UpdateJobActive(active bool, jobID, userID int) error {
+func (db *Database) UpdateJobActive(active bool, jobID, userID int) error {
 	stmt, err := db.Prepare(`update jobs set active = $1, modified = $2 where id = $3 and userid = $4`)
 	if err != nil {
 		log.Println(err)
@@ -95,7 +95,7 @@ func UpdateJobActive(active bool, jobID, userID int) error {
 	return nil
 }
 
-func GetJobByID(jobID, userID int) (*models.Job, error) {
+func (db *Database) GetJobByID(jobID, userID int) (*models.Job, error) {
 	var job *models.Job
 	err := db.QueryRow(`select * from jobs where id=$1 and userid=$2`, jobID, userID).Scan(&job.ID, &job.Name, &job.URL, &job.Frequency, &job.UserID, &job.Active, &job.CreatedAt, &job.ModifiedAt)
 	if err != nil {

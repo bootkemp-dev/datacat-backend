@@ -290,12 +290,24 @@ func (a *API) RestartJob(c *gin.Context) {
 		return
 	}
 
-	if job.GetActive() == true {
-		job.Stop()
+	if job.GetActive() {
+		go job.Stop()
 		job.Run()
 	} else {
+		err := a.database.UpdateJobActive(true, jobID, userID.(int))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+		job.SetModifiedNow()
 		job.Run()
+
 	}
+
+	c.Status(200)
 }
 
 func (a *API) GetJobActive(c *gin.Context) {

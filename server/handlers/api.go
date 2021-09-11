@@ -40,11 +40,13 @@ func NewApi(c config.Config) (*API, error) {
 }
 
 func (a *API) populateJobPool() error {
+	log.Println("Populating job pool...")
 	jobs, err := a.database.GetAllJobs()
 	if err != nil {
 		log.Printf("Populating job pool failed: %v\n", err)
 		return err
 	}
+	log.Printf("Found %d jobs\n", len(jobs))
 
 	for _, j := range jobs {
 		a.jobPool.AddJob(j)

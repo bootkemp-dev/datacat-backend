@@ -64,7 +64,7 @@ type Job struct {
 	CreatedAt  time.Time     `json:"created_at"`
 	ModifiedAt time.Time     `json:"modified_at"`
 	status     string        `json:"-"`
-	done       chan struct{} `json:"-"`
+	Done       chan bool     `json:"-"`
 	logger     logger.Logger `json:"-"`
 }
 
@@ -80,7 +80,7 @@ func NewJob(jobId int, userID int, name, url string, freq int64) *Job {
 		CreatedAt:  time.Now(),
 		ModifiedAt: time.Now(),
 		status:     "NA",
-		done:       make(chan struct{}),
+		Done:       make(chan bool),
 	}
 
 	return &j
@@ -95,13 +95,13 @@ func (j *Job) Run() {
 func (j *Job) run() {
 	for {
 		select {
-		case <-j.done:
+		case <-j.Done:
 			log.Printf("Ending job | ID: %d | Name: %s | URL: %s\n", j.ID, j.Name, j.URL)
 			j.SetStatus("NA")
 			j.SetActive(false)
+			j.SetModifiedNow()
 			return
 		default:
-			log.Printf("Job with ID: %d checking status of: %s ", j.ID, j.URL)
 			err := j.URLStatus()
 			if err != nil {
 				log.Println(err)
@@ -110,8 +110,11 @@ func (j *Job) run() {
 				j.SetStatus("UP")
 			}
 		}
-		time.Sleep(time.Duration(j.Frequency))
 	}
+}
+
+func (j *Job) SetModifiedNow() {
+	j.ModifiedAt = time.Now()
 }
 
 func (j Job) URLStatus() error {
@@ -123,8 +126,8 @@ func (j Job) URLStatus() error {
 	}
 }
 
-func (j Job) Stop() {
-	j.done <- struct{}{}
+func (j *Job) Stop() {
+	j.Done <- true
 }
 
 func (j *Job) SetStatus(s string) {

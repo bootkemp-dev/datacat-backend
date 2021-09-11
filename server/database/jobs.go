@@ -122,6 +122,8 @@ func (db *Database) GetAllJobs() ([]*models.Job, error) {
 			return nil, err
 		}
 
+		job.Done = make(chan bool)
+		job.SetStatus("NA")
 		jobs = append(jobs, &job)
 	}
 

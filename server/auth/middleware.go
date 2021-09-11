@@ -1,23 +1,22 @@
 package auth
 
 import (
+	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		cookie, err := c.Request.Cookie("token")
+		tokenString, err := getTokenFromHeader(c.Request)
 		if err != nil {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"message": "Not authenticated",
-			})
+			c.Status(http.StatusUnauthorized)
 			c.Abort()
 			return
 		}
 
-		tokenString := cookie.Value
 		username, id, err := isTokenValid(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{
@@ -31,4 +30,14 @@ func AuthMiddleware() gin.HandlerFunc {
 			c.Next()
 		}
 	}
+}
+
+func getTokenFromHeader(r *http.Request) (string, error) {
+	reqToken := r.Header.Get("Authorization")
+	splitToken := strings.Split(reqToken, "Bearer")
+	if len(splitToken) != 2 {
+		return "", errors.New("Not Valid")
+	}
+	tokenString := strings.TrimSpace(splitToken[1])
+	return tokenString, nil
 }

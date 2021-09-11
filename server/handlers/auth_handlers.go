@@ -140,7 +140,7 @@ func (a *API) Login(c *gin.Context) {
 	}
 
 	//generate token
-	token, exp, err := auth.GenerateToken(request.Username, id)
+	token, _, err := auth.GenerateToken(request.Username, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"success": false,
@@ -149,15 +149,19 @@ func (a *API) Login(c *gin.Context) {
 		return
 	}
 
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "token",
-		Value:    token,
-		Expires:  *exp,
-		Path:     "/",
-		Secure:   false,
-		HttpOnly: true,
+	/*
+		http.SetCookie(c.Writer, &http.Cookie{
+			Name:     "token",
+			Value:    token,
+			Expires:  *exp,
+			Path:     "/",
+			Secure:   false,
+			HttpOnly: true,
+		})
+	*/
+	c.JSON(http.StatusOK, gin.H{
+		"token": token,
 	})
-	c.Status(200)
 	return
 }
 

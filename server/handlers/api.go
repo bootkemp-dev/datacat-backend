@@ -5,6 +5,7 @@ import (
 
 	"github.com/bootkemp-dev/datacat-backend/config"
 	"github.com/bootkemp-dev/datacat-backend/database"
+	"github.com/bootkemp-dev/datacat-backend/logger"
 	"github.com/bootkemp-dev/datacat-backend/mailing"
 	"github.com/bootkemp-dev/datacat-backend/models"
 )
@@ -13,6 +14,7 @@ type API struct {
 	database *database.Database
 	jobPool  models.Pool
 	mailing  *mailing.Mailing
+	logger   *logger.Logger
 }
 
 func NewApi(c config.Config) (*API, error) {
@@ -27,12 +29,20 @@ func NewApi(c config.Config) (*API, error) {
 		//switch later to return nil, err
 	}
 
+	l, err := logger.NewLogger(&c)
+	if err != nil {
+		return nil, err
+	}
+
+	defer l.Close()
+
 	jobPool := models.NewPool()
 
 	api := API{
 		database: db,
 		jobPool:  jobPool,
 		mailing:  m,
+		logger:   l,
 	}
 	go api.populateJobPool()
 

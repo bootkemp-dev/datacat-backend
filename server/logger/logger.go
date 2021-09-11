@@ -2,25 +2,56 @@ package logger
 
 import (
 	"bufio"
+	"database/sql"
 	"fmt"
 	"log"
 	"os"
 	"time"
+
+	"github.com/bootkemp-dev/datacat-backend/config"
 )
 
 type Logger struct {
-	name string
 	file *os.File
+	db   *sql.DB
 }
 
-func NewLogger(name, filepath string) (*Logger, error) {
-	file, err := os.OpenFile(filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+func NewLogger(c *config.Config) (*Logger, error) {
+	file, err := os.OpenFile(c.Logger.DirPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
 
-	return &Logger{name: name, file: file}, nil
+	db, err := connectToDB(*c)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Logger{
+		file: file,
+		db:   db,
+	}, nil
+
+}
+
+func connectToDB(c config.Config) (*sql.DB, error) {
+	psqlInfo := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable", c.Database.User, c.Database.Password, c.Database.Host, c.Database.Port, c.Database.Name)
+	log.Println(psqlInfo)
+
+	database, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		log.Printf("sql.Open failed: %v\n", err)
+		return nil, err
+	}
+
+	err = database.Ping()
+	if err != nil {
+		log.Printf("database.Ping failed: %v\n", err)
+		return nil, err
+	}
+
+	return database, nil
 }
 
 func (l *Logger) prepareMessage(message string) string {

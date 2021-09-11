@@ -29,16 +29,14 @@ func connect(c config.Config) (*sql.DB, error) {
 
 	database, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		log.Fatalf("sql.Open failed: %v\n", err)
+		log.Printf("sql.Open failed: %v\n", err)
 		return nil, err
 	}
 
 	err = database.Ping()
 	if err != nil {
-		log.Fatalf("database.Ping failed: %v\n", err)
+		log.Printf("database.Ping failed: %v\n", err)
 		return nil, err
 	}
-
-	log.Println("[+] Connected to the database")
 	return database, nil
 }

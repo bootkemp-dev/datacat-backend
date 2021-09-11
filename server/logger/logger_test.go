@@ -16,7 +16,7 @@ func TestLogger(t *testing.T) {
 	log.Println("Config loaded...")
 	log.Println("Log files dir:", config.Logger.DirPath)
 
-	logger, err := NewLogger("Test Logger", config.Logger.DirPath+"/test.txt")
+	logger, err := NewLogger(config)
 	if err != nil {
 		t.Fail()
 	}

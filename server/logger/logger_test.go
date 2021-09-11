@@ -1,7 +1,6 @@
 package logger
 
 import (
-	"io/ioutil"
 	"log"
 	"testing"
 
@@ -29,14 +28,4 @@ func TestLogger(t *testing.T) {
 	if err != nil {
 		log.Println(err)
 	}
-
-	toCheck, err := ioutil.ReadFile(config.Logger.DirPath + "/test.txt")
-	if err != nil {
-		t.Fail()
-	}
-
-	if string(toCheck) != message {
-		t.Fail()
-	}
-
 }

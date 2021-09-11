@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -52,6 +53,9 @@ func (a *API) AddJob(c *gin.Context) {
 	j := models.NewJob(jobID, id.(int), request.JobName, request.JobURL, request.Frequency)
 	a.jobPool.AddJob(j)
 	j.Run()
+
+	go a.logger.WriteLogToFile(fmt.Sprintf("Job with ID %d has been created", jobID))
+
 	c.JSON(http.StatusOK, gin.H{
 		"id":   jobID,
 		"name": request.JobName,
@@ -204,6 +208,9 @@ func (a *API) PauseJob(c *gin.Context) {
 	}
 
 	go job.Stop()
+	job.SetModifiedNow()
+	go a.logger.WriteLogToFile(fmt.Sprintf("Job with ID: %d has been paused", job.ID))
+
 	err = a.database.UpdateJobActive(false, jobID, job.UserID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
@@ -291,8 +298,9 @@ func (a *API) RestartJob(c *gin.Context) {
 	}
 
 	if job.GetActive() {
-		go job.Stop()
+		job.Stop()
 		job.Run()
+		job.SetModifiedNow()
 	} else {
 		err := a.database.UpdateJobActive(true, jobID, userID.(int))
 		if err != nil {
@@ -306,6 +314,8 @@ func (a *API) RestartJob(c *gin.Context) {
 		job.Run()
 
 	}
+
+	go a.logger.WriteLogToFile(fmt.Sprintf("Job with ID: %d has been restarted", job.ID))
 
 	c.Status(200)
 }

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/bootkemp-dev/datacat-backend/config"
+	_ "github.com/lib/pq"
 )
 
 type Logger struct {
@@ -17,7 +18,7 @@ type Logger struct {
 }
 
 func NewLogger(c *config.Config) (*Logger, error) {
-	file, err := os.OpenFile(c.Logger.DirPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
+	file, err := os.OpenFile("./log_files/jobs.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
 	if err != nil {
 		log.Println(err)
 		return nil, err
@@ -27,6 +28,8 @@ func NewLogger(c *config.Config) (*Logger, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	log.Println("Logger connected to the database")
 
 	return &Logger{
 		file: file,

@@ -411,3 +411,7 @@ func (a *API) JobInfoWebsocket(c *gin.Context) {
 		time.Sleep(time.Duration(job.Frequency))
 	}
 }
+
+func (a *API) JobLogHandler(c *gin.Context) {
+	c.Status(200)
+}

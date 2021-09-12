@@ -76,6 +76,10 @@ func (l *Logger) WriteLogToFile(message string) error {
 	return nil
 }
 
+func (l *Logger) InsertLogMessageToDb() error {
+	return nil
+}
+
 func (l *Logger) Close() {
 	l.file.Close()
 }

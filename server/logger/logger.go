@@ -76,7 +76,8 @@ func (l *Logger) WriteLogToFile(message string) error {
 	return nil
 }
 
-func (l *Logger) InsertLogMessageToDb() error {
+func (l *Logger) InsertLogMessageToDb(jobID int, status string, message string) error {
+	//stmt, err := l.db.Prepare(``)
 	return nil
 }
 

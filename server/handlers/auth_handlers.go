@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 
 	"github.com/bootkemp-dev/datacat-backend/auth"
@@ -87,7 +86,7 @@ func (a *API) Register(c *gin.Context) {
 		})
 		return
 	}
-	go a.logger.WriteLogToFile(fmt.Sprintf("User with username %s has been created", request.Username))
+	//go a.logger.WriteLogToFile(fmt.Sprintf("User with username %s has been created", request.Username))
 
 	c.Status(201)
 	return

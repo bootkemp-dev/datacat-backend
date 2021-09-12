@@ -56,13 +56,13 @@ func (p Pool) GetPoolSize() int {
 
 type Job struct {
 	ID         int           `json:"id"`
-	Name       string        `json:"job_name"`
-	URL        string        `json:"job_url"`
+	Name       string        `json:"jobName"`
+	URL        string        `json:"jobUrl"`
 	Frequency  int64         `json:"frequency"`
-	UserID     int           `json:"user_id"`
+	UserID     int           `json:"userID"`
 	Active     bool          `json:"active"`
-	CreatedAt  time.Time     `json:"created_at"`
-	ModifiedAt time.Time     `json:"modified_at"`
+	CreatedAt  time.Time     `json:"createdAt"`
+	ModifiedAt time.Time     `json:"modifiedAt"`
 	status     string        `json:"-"`
 	Done       chan bool     `json:"-"`
 	logger     logger.Logger `json:"-"`

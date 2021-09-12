@@ -24,8 +24,8 @@ create table jobs (
 create table jobLog(
     id serial primary key not null,
     jobID integer not null references jobs(id),
-    down boolean,
-    downFor timestamp,
+    jobStatus varchar(30),
+    logMessage text not null,
     timeChecked timestamp not null
 );
 

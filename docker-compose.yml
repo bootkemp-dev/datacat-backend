@@ -11,7 +11,7 @@ services:
         volumes:
             - data:/var/lib/postgresql/data
         healthcheck:
-            test: ["CMD", "pg_isready", "-U", "datacatdbuser"]
+            test: ["CMD", "pg_isready", "-d", "datacatdb", "-U", "datacatdbuser"]
             interval: 10s
             start_period: 30s
     server:

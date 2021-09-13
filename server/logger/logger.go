@@ -18,10 +18,17 @@ type Logger struct {
 }
 
 func NewLogger(c *config.Config) (*Logger, error) {
-	file, err := os.OpenFile(c.Logger.DirPath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0666)
-	if err != nil {
-		log.Println(err)
-		return nil, err
+	var file *os.File
+	if _, err := os.Stat(c.Logger.DirPath); os.IsNotExist(err) {
+		file, err = os.Create("auth.log")
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		file, err = os.Open(c.Logger.DirPath)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	db, err := connectToDB(*c)

@@ -1,0 +1,22 @@
+server:
+  host: 127.0.0.1
+  port: 8888
+database:
+  user: datacatdbuser
+  password: datacatdbpassword
+  host: database
+  port: 5432
+  name: datacatdb
+jwt: 
+  jwtKey: testjwtkey
+  issuer: datacat
+accounts:
+  resetPasswordTokenLength: 30
+  resetPasswordTokenExpiration: 43200000000000
+smtp:
+  port: 25
+  host: bootkemp.kernel-panic.pl
+  password: ""
+  resetEmail: hyperxpizza@bootkemp.kernel-panic.pl
+logger:
+  dirPath: /build/logger/log_files/jobs.log

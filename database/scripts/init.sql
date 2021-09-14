@@ -23,6 +23,7 @@ create table jobs (
 
 create table jobLog(
     id serial primary key not null,
+    userID integer not null references users(id),
     jobID integer not null references jobs(id),
     jobStatus varchar(30),
     logMessage text not null,

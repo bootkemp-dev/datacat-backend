@@ -50,6 +50,17 @@ func (p Pool) GetJob(jobID int, userID int) (*Job, error) {
 	return nil, fmt.Errorf("Job not found")
 }
 
+func (p Pool) GetJobsByUserID(userID int) []*Job {
+	var jobs []*Job
+	for i := range p.jobs {
+		if p.jobs[i].UserID == userID {
+			jobs = append(jobs, p.jobs[i])
+		}
+	}
+
+	return jobs
+}
+
 func (p Pool) GetPoolSize() int {
 	return len(p.jobs)
 }
@@ -63,7 +74,7 @@ type Job struct {
 	Active     bool          `json:"active"`
 	CreatedAt  time.Time     `json:"createdAt"`
 	ModifiedAt time.Time     `json:"modifiedAt"`
-	status     string        `json:"-"`
+	Status     string        `json:"status"`
 	Done       chan bool     `json:"-"`
 	logger     logger.Logger `json:"-"`
 }
@@ -79,7 +90,7 @@ func NewJob(jobId int, userID int, name, url string, freq int64) *Job {
 		Active:     false,
 		CreatedAt:  time.Now(),
 		ModifiedAt: time.Now(),
-		status:     "NA",
+		Status:     "NA",
 		Done:       make(chan bool),
 	}
 
@@ -131,7 +142,7 @@ func (j *Job) Stop() {
 }
 
 func (j *Job) SetStatus(s string) {
-	j.status = s
+	j.Status = s
 }
 
 func (j *Job) SetActive(a bool) {
@@ -139,7 +150,7 @@ func (j *Job) SetActive(a bool) {
 }
 
 func (j *Job) GetStatus() string {
-	return j.status
+	return j.Status
 }
 
 func (j *Job) GetActive() bool {

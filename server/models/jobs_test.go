@@ -24,7 +24,7 @@ func TestRemoveJobFromPool(t *testing.T) {
 
 	time.Sleep(20 * time.Second)
 	fmt.Println("Status of job 1:", j1.GetStatus())
-	fmt.Println("Status of job 2:", j2.status)
+	fmt.Println("Status of job 2:", j2.Status)
 	time.Sleep(10 * time.Second)
 	fmt.Println("Job 1 Active: ", j1.Active)
 	fmt.Println("Stopping job 1 ...")

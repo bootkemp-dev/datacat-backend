@@ -167,7 +167,6 @@ func (a *API) GetJobs(c *gin.Context) {
 		})
 		return
 	}
-
 }
 
 func (a *API) PauseJob(c *gin.Context) {
@@ -413,5 +412,42 @@ func (a *API) JobInfoWebsocket(c *gin.Context) {
 }
 
 func (a *API) JobLogHandler(c *gin.Context) {
-	c.Status(200)
+	id := c.Param("id")
+	jobID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	logs, err := a.database.GetJobLogsByID(jobID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"error": err,
+		})
+	}
+
+	c.JSON(200, gin.H{
+		"logs": logs,
+	})
+	return
+}
+
+func (a *API) GetJobsFromPool(c *gin.Context) {
+	userID, exists := c.Get("id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "id not set in context",
+		})
+		return
+	}
+
+	jobs := a.jobPool.GetJobsByUserID(userID.(int))
+	c.JSON(http.StatusOK, gin.H{
+		"jobs": jobs,
+	})
+	return
 }

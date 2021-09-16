@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/bootkemp-dev/datacat-backend/models"
 	"github.com/bootkemp-dev/datacat-backend/utils"
+	socketio "github.com/googollee/go-socket.io"
 
 	"github.com/gin-gonic/gin"
 )
@@ -358,7 +360,36 @@ func (a *API) GetJobActive(c *gin.Context) {
 }
 
 func (a *API) JobInfoWebsocket(c *gin.Context) {
+	/*
+		id := c.Param("id")
+		jobID, err := strconv.Atoi(id)
+		if err != nil {
+			c.JSON(http.StatusNotAcceptable, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
 
+		userID, exists := c.Get("id")
+		if !exists {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"success": false,
+				"message": "id not set in context",
+			})
+			return
+		}
+
+		//get job
+		job, err := a.jobPool.GetJob(jobID, userID.(int))
+		if err != nil {
+			c.JSON(http.StatusNotFound, gin.H{
+				"success": false,
+				"message": err.Error(),
+			})
+			return
+		}
+	*/
 }
 
 func (a *API) JobLogHandler(c *gin.Context) {
@@ -400,4 +431,48 @@ func (a *API) GetJobsFromPool(c *gin.Context) {
 		"jobs": jobs,
 	})
 	return
+}
+
+func (a *API) SocketIOHandler(c *gin.Context) {
+	id := c.Param("id")
+	jobID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	userID, exists := c.Get("id")
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"message": "id not set in context",
+		})
+		return
+	}
+
+	//get job
+	job, err := a.jobPool.GetJob(jobID, userID.(int))
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if !job.GetActive() {
+		c.JSON(http.StatusConflict, gin.H{
+			"message": "Job not running",
+		})
+		return
+	}
+
+	a.SocketServer.OnEvent("/", "ping", func(s socketio.Conn) *time.Duration {
+		return job.GetPing()
+	})
+
+	a.SocketServer.ServeHTTP(c.Writer, c.Request)
 }

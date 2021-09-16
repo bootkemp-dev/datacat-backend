@@ -8,13 +8,15 @@ import (
 	"github.com/bootkemp-dev/datacat-backend/logger"
 	"github.com/bootkemp-dev/datacat-backend/mailing"
 	"github.com/bootkemp-dev/datacat-backend/models"
+	socketio "github.com/googollee/go-socket.io"
 )
 
 type API struct {
-	database *database.Database
-	jobPool  models.Pool
-	mailing  *mailing.Mailing
-	logger   *logger.Logger
+	database     *database.Database
+	jobPool      models.Pool
+	mailing      *mailing.Mailing
+	logger       *logger.Logger
+	SocketServer *socketio.Server
 }
 
 func NewApi(c config.Config) (*API, error) {
@@ -45,6 +47,8 @@ func NewApi(c config.Config) (*API, error) {
 	}
 	go api.populateJobPool()
 
+	api.SetupSocketIOServer()
+
 	return &api, nil
 }
 
@@ -65,4 +69,11 @@ func (a *API) populateJobPool() error {
 	}
 
 	return nil
+}
+
+func (a *API) SetupSocketIOServer() {
+	log.Println("Starting socket server...")
+	server := socketio.NewServer(nil)
+	a.SocketServer = server
+	go a.SocketServer.Serve()
 }

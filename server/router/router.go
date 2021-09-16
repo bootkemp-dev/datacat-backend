@@ -37,7 +37,8 @@ func setupRouter(c config.Config) *gin.Engine {
 		auth2.POST("/job/:id/pause", api.PauseJob)
 		auth2.POST("/job/:id/restart", api.RestartJob)
 		auth2.DELETE("/job/:id", api.DeleteJob)
-		auth2.GET("/ws/:id", api.JobInfoWebsocket)
+		auth2.GET("job/:id/socket.io", api.SocketIOHandler)
+		auth2.POST("job/:id/socket.io", api.SocketIOHandler)
 		auth2.GET("/job/:id/logs", api.JobLogHandler)
 	}
 

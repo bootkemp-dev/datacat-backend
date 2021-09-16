@@ -3,10 +3,11 @@ package models
 import (
 	"fmt"
 	"log"
-	"net/http"
+	"net"
 	"time"
 
 	"github.com/bootkemp-dev/datacat-backend/logger"
+	"github.com/go-ping/ping"
 )
 
 type NewJobRequest struct {
@@ -77,9 +78,11 @@ type Job struct {
 	Status     string        `json:"status"`
 	Done       chan bool     `json:"-"`
 	logger     logger.Logger `json:"-"`
+	pinger     *ping.Pinger  `json:"-"`
+	ping       chan time.Duration
 }
 
-func NewJob(jobId int, userID int, name, url string, freq int64) *Job {
+func NewJob(jobId int, userID int, name, url string, freq int64) (*Job, error) {
 
 	j := Job{
 		ID:         jobId,
@@ -92,9 +95,18 @@ func NewJob(jobId int, userID int, name, url string, freq int64) *Job {
 		ModifiedAt: time.Now(),
 		Status:     "NA",
 		Done:       make(chan bool),
+		ping:       make(chan time.Duration),
 	}
 
-	return &j
+	p, err := ping.NewPinger(j.URL)
+	if err != nil {
+		return nil, err
+	}
+
+	j.pinger = p
+	p.OnRecv = func(pkt *ping.Packet) { j.ping <- pkt.Rtt }
+
+	return &j, nil
 }
 
 func (j *Job) Run() {
@@ -104,37 +116,30 @@ func (j *Job) Run() {
 }
 
 func (j *Job) run() {
+	go j.pinger.Run()
 	for {
 		select {
 		case <-j.Done:
+			j.pinger.Stop()
 			log.Printf("Ending job | ID: %d | Name: %s | URL: %s\n", j.ID, j.Name, j.URL)
 			j.SetStatus("NA")
 			j.SetActive(false)
 			j.SetModifiedNow()
 			return
 		default:
-			err := j.URLStatus()
+			_, err := net.DialTimeout("tcp", fmt.Sprintf("%s:80", j.URL), 1*time.Second)
 			if err != nil {
-				log.Println(err)
 				j.SetStatus("DOWN")
 			} else {
 				j.SetStatus("UP")
 			}
 		}
 	}
+
 }
 
 func (j *Job) SetModifiedNow() {
 	j.ModifiedAt = time.Now()
-}
-
-func (j Job) URLStatus() error {
-	resp, err := http.Get(j.URL)
-	if err == nil && resp.StatusCode == 200 {
-		return nil
-	} else {
-		return err
-	}
 }
 
 func (j *Job) Stop() {
@@ -155,4 +160,11 @@ func (j *Job) GetStatus() string {
 
 func (j *Job) GetActive() bool {
 	return j.Active
+}
+
+func (j *Job) GetPing() *time.Duration {
+	for x := range j.ping {
+		return &x
+	}
+	return nil
 }

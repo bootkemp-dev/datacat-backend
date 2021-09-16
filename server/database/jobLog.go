@@ -8,3 +8,5 @@ func (db *Database) GetJobLogsByID(jobID int) ([]*models.JobLog, error) {
 
 	return logs, nil
 }
+
+func (db *Database) InsertJobLog() {}

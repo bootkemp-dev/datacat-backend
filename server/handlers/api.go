@@ -45,8 +45,8 @@ func NewApi(c config.Config) (*API, error) {
 		mailing:  m,
 		logger:   l,
 	}
-	go api.populateJobPool()
 
+	api.populateJobPool()
 	api.SetupSocketIOServer()
 
 	return &api, nil

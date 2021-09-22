@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/bootkemp-dev/datacat-backend/logger"
@@ -83,6 +84,13 @@ type Job struct {
 }
 
 func NewJob(jobId int, userID int, name, url string, freq int64, createdAt, modifiedAt time.Time, active bool) (*Job, error) {
+
+	if strings.Contains(url, "http://") {
+		url = strings.ReplaceAll(url, "http://", "")
+	}
+	if strings.Contains(url, "https://") {
+		url = strings.ReplaceAll(url, "https://", "")
+	}
 
 	j := Job{
 		ID:         jobId,

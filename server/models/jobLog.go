@@ -4,8 +4,9 @@ import "time"
 
 type JobLog struct {
 	ID          int       `json:"id"`
+	UserID      int       `json:"userID"`
 	JobID       int       `json:"jobID"`
-	Down        bool      `json:"down"`
+	Status      string    `json:"status"`
 	LogMessage  string    `json:"logMessage"`
 	TimeChecked time.Time `json:"timeChecked"`
 }

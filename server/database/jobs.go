@@ -131,7 +131,7 @@ func (db *Database) GetAllJobs() ([]*models.Job, error) {
 
 		job, err := models.NewJob(id, userID, name, url, frequency, created, modified, active)
 		if err != nil {
-
+			log.Printf("models.NewJob failed: %v\n", err)
 		}
 
 		jobs = append(jobs, job)

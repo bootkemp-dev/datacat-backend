@@ -7,7 +7,6 @@ import (
 	"github.com/bootkemp-dev/datacat-backend/auth"
 	"github.com/bootkemp-dev/datacat-backend/config"
 	"github.com/bootkemp-dev/datacat-backend/handlers"
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -55,6 +54,21 @@ func setupRouter(c config.Config) *gin.Engine {
 
 func Run(c config.Config) {
 	router := setupRouter(c)
-	router.Use(cors.Default())
+	router.Use(corsMiddleware())
 	router.Run(fmt.Sprintf(":%s", c.Server.Port))
+}
+
+func corsMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "*")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
 }

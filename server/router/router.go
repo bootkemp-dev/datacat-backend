@@ -7,6 +7,7 @@ import (
 	"github.com/bootkemp-dev/datacat-backend/auth"
 	"github.com/bootkemp-dev/datacat-backend/config"
 	"github.com/bootkemp-dev/datacat-backend/handlers"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -54,5 +55,6 @@ func setupRouter(c config.Config) *gin.Engine {
 
 func Run(c config.Config) {
 	router := setupRouter(c)
+	router.Use(cors.Default())
 	router.Run(fmt.Sprintf(":%s", c.Server.Port))
 }

@@ -359,7 +359,7 @@ func (a *API) GetJobActive(c *gin.Context) {
 	})
 }
 
-func (a *API) JobInfoWebsocket(c *gin.Context) {
+func (a *API) JobLogHandler(c *gin.Context) {
 	/*
 		id := c.Param("id")
 		jobID, err := strconv.Atoi(id)
@@ -373,47 +373,13 @@ func (a *API) JobInfoWebsocket(c *gin.Context) {
 
 		userID, exists := c.Get("id")
 		if !exists {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"success": false,
-				"message": "id not set in context",
-			})
+			c.Status(http.StatusInternalServerError)
 			return
 		}
 
-		//get job
-		job, err := a.jobPool.GetJob(jobID, userID.(int))
-		if err != nil {
-			c.JSON(http.StatusNotFound, gin.H{
-				"success": false,
-				"message": err.Error(),
-			})
-			return
-		}
+		limit := c.Query("limit")
+		offset := c.Query("offset")
 	*/
-}
-
-func (a *API) JobLogHandler(c *gin.Context) {
-	id := c.Param("id")
-	jobID, err := strconv.Atoi(id)
-	if err != nil {
-		c.JSON(http.StatusNotAcceptable, gin.H{
-			"success": false,
-			"message": err.Error(),
-		})
-		return
-	}
-
-	logs, err := a.database.GetJobLogsByID(jobID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": err,
-		})
-	}
-
-	c.JSON(200, gin.H{
-		"logs": logs,
-	})
-	return
 }
 
 func (a *API) GetJobsFromPool(c *gin.Context) {

@@ -49,7 +49,7 @@ func (a *API) AddJob(c *gin.Context) {
 		return
 	}
 
-	j, err := models.NewJob(jobID, id.(int), request.JobName, request.JobURL, request.Frequency)
+	j, err := models.NewJob(jobID, id.(int), request.JobName, request.JobURL, request.Frequency, time.Now(), time.Now(), false)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),

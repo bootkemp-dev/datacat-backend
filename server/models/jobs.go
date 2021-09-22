@@ -82,7 +82,7 @@ type Job struct {
 	ping       chan time.Duration
 }
 
-func NewJob(jobId int, userID int, name, url string, freq int64) (*Job, error) {
+func NewJob(jobId int, userID int, name, url string, freq int64, createdAt, modifiedAt time.Time, active bool) (*Job, error) {
 
 	j := Job{
 		ID:         jobId,
@@ -90,8 +90,8 @@ func NewJob(jobId int, userID int, name, url string, freq int64) (*Job, error) {
 		URL:        url,
 		Frequency:  freq,
 		UserID:     userID,
-		Active:     false,
-		CreatedAt:  time.Now(),
+		Active:     active,
+		CreatedAt:  createdAt,
 		ModifiedAt: time.Now(),
 		Status:     "NA",
 		Done:       make(chan bool),

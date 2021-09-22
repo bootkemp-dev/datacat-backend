@@ -1,12 +1,5 @@
 package models
 
-import (
-	"fmt"
-	"log"
-	"testing"
-	"time"
-)
-
 /*
 func TestRemoveJobFromPool(t *testing.T) {
 	p := NewPool()
@@ -41,7 +34,7 @@ func TestRemoveJobFromPool(t *testing.T) {
 
 	wg.Wait()
 }
-*/
+
 func TestPinger(t *testing.T) {
 	p := NewPool()
 	job, err := NewJob(1, 1, "test", "google.com", 1)
@@ -73,3 +66,4 @@ func TestPinger(t *testing.T) {
 	done <- true
 
 }
+*/

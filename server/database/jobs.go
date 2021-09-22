@@ -115,16 +115,26 @@ func (db *Database) GetAllJobs() ([]*models.Job, error) {
 	}
 
 	for rows.Next() {
-		var job models.Job
-		err := rows.Scan(&job.ID, &job.Name, &job.URL, &job.Frequency, &job.UserID, &job.Active, &job.CreatedAt, &job.ModifiedAt)
+		var id int
+		var name string
+		var url string
+		var frequency int64
+		var userID int
+		var active bool
+		var created time.Time
+		var modified time.Time
+		err := rows.Scan(&id, &name, &url, &frequency, &userID, &active, &created, &modified)
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
 
-		job.Done = make(chan bool)
-		job.SetStatus("NA")
-		jobs = append(jobs, &job)
+		job, err := models.NewJob(id, userID, name, url, frequency, created, modified, active)
+		if err != nil {
+
+		}
+
+		jobs = append(jobs, job)
 	}
 
 	return jobs, nil

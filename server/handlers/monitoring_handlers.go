@@ -390,12 +390,6 @@ func (a *API) JobLogHandler(c *gin.Context) {
 		return
 	}
 
-	userID, exists := c.Get("id")
-	if !exists {
-		c.Status(http.StatusInternalServerError)
-		return
-	}
-
 	var limit int
 	var offset int
 
@@ -425,6 +419,20 @@ func (a *API) JobLogHandler(c *gin.Context) {
 		}
 	}
 
+	logs, err := a.database.GetJobLogsByID(jobID, limit, offset)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"mesage": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"logs":   logs,
+		"offset": offset,
+		"limit":  limit,
+	})
+	return
 }
 
 func (a *API) GetJobsFromPool(c *gin.Context) {

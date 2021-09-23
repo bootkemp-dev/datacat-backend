@@ -26,12 +26,12 @@ func (db *Database) CheckIfEmailExists(email string) error {
 }
 
 func (db *Database) InsertUser(username, email, password string) error {
-	stmt, err := db.Prepare(`insert into users(id, username, email, passwordHash, created, modified) values(default, $1, $2, $3, $4, $5)`)
+	stmt, err := db.Prepare(`insert into users(id, username, email, passwordHash, created, modified, confirmed) values(default, $1, $2, $3, $4, $5, $6)`)
 	if err != nil {
 		return err
 	}
 
-	_, err = stmt.Exec(username, email, password, time.Now(), time.Now())
+	_, err = stmt.Exec(username, email, password, time.Now(), time.Now(), false)
 	if err != nil {
 		return err
 	}

@@ -2,10 +2,10 @@ package utils
 
 import (
 	"fmt"
+	"log"
 	"testing"
 )
 
-/*
 func TestHashPassword(t *testing.T) {
 	hashedPassword, err := HashPassword("lol")
 	if err != nil {
@@ -15,7 +15,6 @@ func TestHashPassword(t *testing.T) {
 
 	log.Println(hashedPassword)
 }
-*/
 
 func TestGenerateRandomToken(t *testing.T) {
 	token, err := GenerateRandomToken(30)

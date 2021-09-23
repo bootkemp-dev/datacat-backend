@@ -7,7 +7,8 @@ create table users (
     created timestamp not null,
     modified timestamp not null,
     passwordResetToken varchar(30),
-    passwordResetTokenExpDate timestamp
+    passwordResetTokenExpDate timestamp,
+    confirmed boolean not null
 );
 
 create table jobs (

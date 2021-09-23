@@ -436,7 +436,6 @@ func (a *API) JobLogHandler(c *gin.Context) {
 			})
 			return
 		}
-
 	} else {
 		logs, err = a.database.GetJobLogsByID(jobID, limit, offset)
 		if err != nil {
@@ -446,6 +445,7 @@ func (a *API) JobLogHandler(c *gin.Context) {
 			return
 		}
 	}
+
 	c.JSON(http.StatusOK, gin.H{
 		"logs":   logs,
 		"offset": offset,

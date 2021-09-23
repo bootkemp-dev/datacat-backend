@@ -8,7 +8,28 @@ import (
 
 func (db *Database) GetJobLogsByID(jobID, limit, offset int) ([]*models.JobLog, error) {
 	var logs []*models.JobLog
-	rows, err := db.Query(`select * from jobLog where id =$1 order by id desc  limit $2 offset $3`)
+	rows, err := db.Query(`select * from jobLog where jobID =$1 order by id desc  limit $2 offset $3`, jobID, limit, offset)
+	if err != nil {
+		return nil, err
+	}
+
+	for rows.Next() {
+		var log models.JobLog
+
+		err := rows.Scan(&log.ID, &log.UserID, &log.JobID, &log.Status, &log.LogMessage, &log.TimeChecked)
+		if err != nil {
+			continue
+		}
+
+		logs = append(logs, &log)
+	}
+
+	return logs, nil
+}
+
+func (db *Database) GetAllJobLogsByID(jobID int) ([]*models.JobLog, error) {
+	var logs []*models.JobLog
+	rows, err := db.Query(`select * from jobLog where jobID =$1 order by id desc`, jobID)
 	if err != nil {
 		return nil, err
 	}

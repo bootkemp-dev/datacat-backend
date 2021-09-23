@@ -24,22 +24,6 @@ func (db *Database) InsertNewJob(name, url string, frequency int64, userid int) 
 	return id, nil
 }
 
-func (db *Database) InsertNewJobLog(jobID int, down bool, timeChecked time.Time) error {
-	stmt, err := db.Prepare(`insert into jobLog(id, jobID, down, timeChecked) values(default, $1, $2, $3)`)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	_, err = stmt.Exec(jobID, down, timeChecked)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	return nil
-}
-
 func (db *Database) GetAllJobsByUserID(userID int) ([]*models.Job, error) {
 	rows, err := db.Query(`select * from jobs where userid=$1`, userID)
 	if err != nil {
@@ -73,6 +57,12 @@ func (db *Database) DeleteJob(jobID, userID int) error {
 	_, err = stmt.Exec(jobID, userID)
 	if err != nil {
 		log.Println(err)
+		return err
+	}
+
+	//delete logs
+	err = db.DeleteJobLogs(jobID, userID)
+	if err != nil {
 		return err
 	}
 

@@ -8,7 +8,7 @@ import (
 
 func (db *Database) GetJobLogsByID(jobID, limit, offset int) ([]*models.JobLog, error) {
 	var logs []*models.JobLog
-	rows, err := db.Query(`select * from jobLog where id =$1 limit $2 offset $3 order by id desc`)
+	rows, err := db.Query(`select * from jobLog where id =$1 order by id desc  limit $2 offset $3`)
 	if err != nil {
 		return nil, err
 	}
@@ -34,6 +34,20 @@ func (db *Database) InsertJobLog(userID, jobID int, status, message string) erro
 	}
 
 	_, err = stmt.Exec(userID, jobID, status, message, time.Now())
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *Database) DeleteJobLogs(jobID int, userID int) error {
+	stmt, err := db.Prepare(`delete from jobLog where jobID = $1 and userID = $2`)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec(jobID, userID)
 	if err != nil {
 		return err
 	}

@@ -3,6 +3,7 @@ package handlers
 import (
 	"database/sql"
 	"fmt"
+	"log"
 	"net/http"
 	"strconv"
 	"time"
@@ -58,7 +59,15 @@ func (a *API) AddJob(c *gin.Context) {
 	a.jobPool.AddJob(j)
 	j.Run()
 
-	go a.logger.WriteLogToFile(fmt.Sprintf("Job with ID %d has been created", jobID))
+	go func() {
+		logMessage := fmt.Sprintf("Job with ID %d has been created", jobID)
+		if err := a.logger.WriteLogToFile(logMessage); err != nil {
+			log.Println(err)
+		}
+		if err := a.database.InsertJobLog(id.(int), j.ID, j.GetStatus(), logMessage); err != nil {
+			log.Println(err)
+		}
+	}()
 
 	c.JSON(http.StatusOK, gin.H{
 		"id":   jobID,
@@ -212,7 +221,17 @@ func (a *API) PauseJob(c *gin.Context) {
 
 	go job.Stop()
 	job.SetModifiedNow()
-	go a.logger.WriteLogToFile(fmt.Sprintf("Job with ID: %d has been paused", job.ID))
+
+	go func() {
+		logMessage := fmt.Sprintf("Job with ID: %d has been paused", job.ID)
+		if err := a.logger.WriteLogToFile(logMessage); err != nil {
+			log.Println(err)
+		}
+
+		if err := a.database.InsertJobLog(userID.(int), jobID, job.Status, logMessage); err != nil {
+			log.Println(err)
+		}
+	}()
 
 	err = a.database.UpdateJobActive(false, jobID, job.UserID)
 	if err != nil {
@@ -360,26 +379,52 @@ func (a *API) GetJobActive(c *gin.Context) {
 }
 
 func (a *API) JobLogHandler(c *gin.Context) {
-	/*
-		id := c.Param("id")
-		jobID, err := strconv.Atoi(id)
+
+	id := c.Param("id")
+	jobID, err := strconv.Atoi(id)
+	if err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{
+			"success": false,
+			"message": err.Error(),
+		})
+		return
+	}
+
+	userID, exists := c.Get("id")
+	if !exists {
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	var limit int
+	var offset int
+
+	limitQuery := c.Query("limit")
+	if limitQuery == "" {
+		limit = 0
+	} else {
+		limit, err = strconv.Atoi(limitQuery)
 		if err != nil {
-			c.JSON(http.StatusNotAcceptable, gin.H{
-				"success": false,
+			c.JSON(http.StatusBadRequest, gin.H{
 				"message": err.Error(),
 			})
 			return
 		}
+	}
 
-		userID, exists := c.Get("id")
-		if !exists {
-			c.Status(http.StatusInternalServerError)
+	offsetQuery := c.Query("offset")
+	if offsetQuery == "" {
+		offset = 0
+	} else {
+		offset, err = strconv.Atoi(offsetQuery)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
 			return
 		}
+	}
 
-		limit := c.Query("limit")
-		offset := c.Query("offset")
-	*/
 }
 
 func (a *API) GetJobsFromPool(c *gin.Context) {

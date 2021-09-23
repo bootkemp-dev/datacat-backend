@@ -120,11 +120,11 @@ func NewJob(jobId int, userID int, name, url string, freq int64, createdAt, modi
 func (j *Job) Run() {
 	log.Printf("Starting job | ID: %d | Name: %s\n", j.ID, j.Name)
 	j.SetActive(true)
+	go j.pinger.Run()
 	go j.run()
 }
 
 func (j *Job) run() {
-	go j.pinger.Run()
 	for {
 		select {
 		case <-j.Done:
@@ -143,7 +143,6 @@ func (j *Job) run() {
 			}
 		}
 	}
-
 }
 
 func (j *Job) SetModifiedNow() {

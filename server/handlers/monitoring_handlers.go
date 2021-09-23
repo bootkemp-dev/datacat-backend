@@ -334,10 +334,17 @@ func (a *API) RestartJob(c *gin.Context) {
 		}
 		job.SetModifiedNow()
 		job.Run()
-
 	}
 
-	go a.logger.WriteLogToFile(fmt.Sprintf("Job with ID: %d has been restarted", job.ID))
+	go func() {
+		logMessage := fmt.Sprintf("Job with ID: %d has been restarted", job.ID)
+		if err := a.database.InsertJobLog(userID.(int), jobID, job.GetStatus(), logMessage); err != nil {
+			log.Println(err)
+		}
+		if err := a.logger.WriteLogToFile(logMessage); err != nil {
+			log.Println(err)
+		}
+	}()
 
 	c.Status(200)
 }
